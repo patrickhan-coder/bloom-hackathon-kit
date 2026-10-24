@@ -1,0 +1,17 @@
+{
+  "name": "bloom-hackathon-kit",
+  "description": "One-day hackathon with live VC judging: submit page, judge page, LED board, operator console, shark tank and feedback archive",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "seed:demo": "node scripts/seed-demo.mjs",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@upstash/redis": "1.39.0",
+    "@vercel/blob": "2.8.1"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LIVE</title>
+<meta name="theme-color" content="#0A0706">
+<style>
+  @font-face{font-family:'PretendardV';src:url(/assets/fonts/PretendardVariable.woff2) format('woff2-variations'),url(/assets/fonts/PretendardVariable.woff2) format('woff2');font-weight:45 920;font-display:swap}
+  @font-face{font-family:'PretendardBlack';src:url(/assets/fonts/Pretendard-Black.woff2) format('woff2');font-weight:100 900;font-display:swap}
+  :root{--bg:#0A0706;--card:rgba(255,255,255,.045);--line:rgba(246,230,218,.12);--ink:#F6E6DA;--muted:rgba(246,230,218,.56);--fire:#FF7A4D;--amber:#FFB547;--red:#FF3B30;
+    --disp:'PretendardBlack','PretendardV',system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:radial-gradient(1200px 600px at 50% -200px,rgba(255,122,77,.16),transparent 70%) var(--bg);color:var(--ink);
+    font-family:'PretendardV','Pretendard Variable',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere;min-height:100vh}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+  header{position:sticky;top:0;z-index:10;background:rgba(10,7,6,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+  .brand{font-family:var(--disp);font-weight:900;font-size:17px;letter-spacing:.01em;white-space:nowrap;text-transform:uppercase}
+  .brand b{color:var(--fire)}
+  .live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--fire)}
+  .live i{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite}
+  .clock{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:14px;color:var(--muted)}
+  @keyframes blink{50%{opacity:.25}}
+  .num{font-variant-numeric:tabular-nums}
+  .hero{padding:26px 0 10px}
+  .kick{font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--fire)}
+  .cd{font-family:var(--disp);font-weight:900;font-size:clamp(52px,15vw,112px);line-height:1;margin:6px 0 4px;letter-spacing:-.01em}
+  .cd.hot{color:var(--amber)} .cd.crit{color:var(--red);animation:blink 1s infinite}
+  .cdl{font-size:clamp(22px,6vw,34px);font-weight:900;margin:6px 0}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+  .stat b{display:block;font-family:var(--disp);font-size:clamp(22px,6vw,30px);line-height:1.1;color:var(--fire)}
+  .stat span{font-size:12px;color:var(--muted)}
+  .prize{margin-top:10px;font-size:13px;color:var(--muted)} .prize b{color:var(--fire)}
+  .grid{display:grid;gap:14px;margin-top:18px}
+  @media (min-width:900px){.grid{grid-template-columns:1.05fr 1fr;align-items:start}.stats{max-width:720px}}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}
+  .sec h2{display:flex;align-items:baseline;gap:8px;font-size:16px;font-weight:900;margin-bottom:12px}
+  .sec h2 .n{margin-left:auto;font-size:14px;color:var(--muted);font-weight:800}
+  .sec h2 .p{font-size:12px;font-weight:800;color:var(--fire)}
+  .seats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media (min-width:560px){.seats{grid-template-columns:repeat(4,1fr)}}
+  @media (min-width:900px){.seats{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1100px){.seats{grid-template-columns:repeat(4,1fr)}}
+  .seat{border:1px dashed var(--line);border-radius:12px;padding:10px;min-height:74px;min-width:0}
+  .seat small{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--muted)}
+  .seat.on{border:1px solid var(--fire);background:linear-gradient(160deg,rgba(255,122,77,.22),rgba(255,122,77,.06))}
+  .seat.on small{color:var(--fire)}
+  .seat b{display:block;font-size:15px;font-weight:900;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seat span{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seat .open{font-family:var(--disp);font-size:16px;color:rgba(246,230,218,.22);margin-top:4px}
+  .list{display:flex;flex-direction:column}
+  .item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);min-width:0}
+  .item:first-child{border-top:0}
+  .item .no{font-weight:900;color:var(--muted);font-size:13px;flex:none;width:34px}
+  .item .nm{font-weight:800;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .nm small{display:block;font-weight:500;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+  .item .nm small.mi,.seat span.mi{color:#FFB08F;font-weight:700}
+  .vdots{display:flex;gap:4px;flex:none;align-items:center}
+  .vdots i{width:9px;height:9px;border-radius:50%;background:rgba(246,230,218,.16)}
+  .vdots i.p{background:#4ADE80;box-shadow:0 0 8px rgba(74,222,128,.6)} .vdots i.f{background:#FF5147;box-shadow:0 0 8px rgba(255,81,71,.6)}
+  .vdots em b{font-weight:900} .vdots em .gp{color:#4ADE80} .vdots em .gf{color:#FF5147}
+  .vdots em{font-style:normal;font-size:12px;font-weight:800;color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0}
+  .rdy{flex:none;font-size:12px;font-weight:900;color:#FFD27A;border:1px solid #FFC857;border-radius:99px;padding:3px 9px;animation:blink 1.4s infinite}
+  .item.ready .nm{color:#FFE2A6}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips i{font-style:normal;font-size:12.5px;font-weight:700;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.06);color:rgba(246,230,218,.78)}
+  .chips.out i{text-decoration:line-through;color:var(--muted);background:transparent;border:1px solid var(--line)}
+  .mrow{display:grid;grid-template-columns:38px 1fr;gap:4px 10px;padding:11px 0;border-top:1px solid var(--line)}
+  .mrow:first-child{border-top:0}
+  .mrow .c{grid-row:span 3;font-family:var(--disp);font-size:28px;line-height:1;color:var(--fire);text-align:right}
+  .mrow .v{display:flex;align-items:center;min-height:18px} .mrow .v img{height:15px;max-width:120px;object-fit:contain;object-position:left}
+  .mrow .v .wl{font-size:11px;font-weight:900;letter-spacing:.12em;color:var(--fire)}
+  .mrow .t{font-weight:800;font-size:14.5px;line-height:1.35}
+  .mrow .ts{font-size:13px;line-height:1.6}
+  .ts i{font-style:normal;white-space:nowrap}
+  .ts i+i::before{content:'·';color:var(--muted);opacity:.6;margin:0 .45em}
+  .s-d{color:var(--muted)} .s-r{color:var(--ink);font-weight:800} .s-p{color:var(--fire);font-weight:900} .s-o{color:var(--muted);opacity:.45;text-decoration:line-through}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;margin:-4px 0 6px}
+  .legend i{font-style:normal} .legend i::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1px}
+  .cstats{display:flex;gap:20px;margin-bottom:10px}
+  .cstats b{display:block;font-family:var(--disp);font-size:30px;line-height:1.05;color:var(--fire)} .cstats span{font-size:12px;color:var(--muted)}
+  .bar{display:grid;grid-template-columns:minmax(0,9em) 1fr 3.2em;align-items:center;gap:8px;font-size:13px;padding:3px 0}
+  .bar b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+  .bar .tr{height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden} .bar .tr i{display:block;height:100%;border-radius:8px;background:var(--fire);transition:width .8s}
+  .bar .tr i.hot{background:#FFB08F;box-shadow:0 0 10px var(--fire)}
+  .bar span{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+  .feed{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .feed div{border-left:3px solid var(--fire);padding-left:9px;font-size:13px;min-width:0}
+  .feed div b{font-weight:800} .feed div em{font-style:normal;color:var(--muted)}
+  .feed div p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(246,230,218,.85)}
+  .flashy{animation:flashy 2.4s ease}
+  @keyframes flashy{0%{background:rgba(255,122,77,.35)}100%{background:transparent}}
+  .foot{margin-top:22px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;font-size:13px;color:var(--muted)}
+  .foot .links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .foot .links a{text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:8px 14px;color:var(--ink);font-weight:800}
+  .logos{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;justify-content:center;background:#fff;border-radius:14px;padding:14px 16px;width:100%}
+  .logos img{height:18px;object-fit:contain}
+  @media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}.brand{font-size:15px}}
+</style></head>
+<body>
+<header><div class="in"><div class="brand" id="brand"></div><div class="live"><i></i>LIVE</div><div class="clock num" id="clock"></div></div></header>
+<div class="wrap">
+  <section class="hero" id="hero"></section>
+  <div class="grid">
+    <div style="display:grid;gap:14px;min-width:0">
+      <section class="sec" id="fin"></section>
+      <section class="sec" id="rev"></section>
+      <section class="sec" id="out"></section>
+    </div>
+    <div style="display:grid;gap:14px;min-width:0">
+      <section class="sec" id="mis"></section>
+      <section class="sec" id="dev"></section>
+      <section class="sec" id="wait"></section>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="links" id="flinks"><a href="/submit">제출 페이지</a></div>
+    <div>현장 LED와 같은 실시간 정보예요 · 몇 초마다 자동으로 바뀌어요</div>
+    <div class="logos" id="logos"></div>
+  </div>
+</div>
+<script type="module">
+import { api, serverNow, dur, hm, hms, ago, esc, $, VCS, HOSTS, EVENT, NAME, missionLabel, missionTitle } from '/assets/common.js';
+let S = null, prev = null;
+document.title = `${EVENT.name} · LIVE`;
+$('#brand').innerHTML = `<b>${esc(NAME[0])}</b> ${esc(NAME[1] || '')}`;
+const ask = EVENT.discord?.channelUrl || EVENT.discord?.invite;
+if (ask) $('#flinks').insertAdjacentHTML('beforeend', `<a href="${esc(ask)}" target="_blank" rel="noopener">디스코드 문의</a>`);
+$('#logos').innerHTML = [...HOSTS, ...VCS].map(l => `<img src="${l.color || l.logo}" alt="${esc(l.name)}" style="height:${Math.round(18 * Math.min(l.h, 1.3))}px">`).join('');
+const P = EVENT.prize;
+
+const name = id => S.teams.find(t => t.id === id)?.name || '';
+const mission = id => { const t = S.teams.find(t => t.id === id); return missionLabel((S.config.topics || []).find(o => o.id === t?.topic?.topic)); };
+const no = x => '#' + String(x.no).padStart(2, '0');
+const stOf = x => !x ? 'wait' : x.status === 'pass' ? 'pass' : (x.status === 'fail' || x.status === 'closed') ? 'out' : 'review';
+const setHTML = (el, html) => { if (el.dataset.h !== html) { el.dataset.h = html; el.innerHTML = html; } };
+
+function render() {
+  $('#clock').textContent = hms(serverNow());
+  if (!S) return;
+  const cap = S.config.capacity, th = S.config.threshold;
+  const subOf = Object.fromEntries(S.subs.map(x => [x.teamId, x]));
+  const st = Object.fromEntries(S.teams.map(t => [t.id, stOf(subOf[t.id])]));
+  const changed = id => prev && prev[id] && prev[id] !== st[id] ? ' flashy' : '';
+  const left = new Date(S.config.submitDeadline).getTime() - serverNow();
+  const before = new Date(S.config.submitOpenAt).getTime() - serverNow();
+  const review = S.subs.filter(x => st[x.teamId] === 'review').sort((a, b) => a.no - b.no);
+  const out = S.subs.filter(x => st[x.teamId] === 'out').sort((a, b) => a.no - b.no);
+  const waiting = S.teams.filter(t => st[t.id] === 'wait');
+
+  // hero: the clock and the race in four numbers
+  const clock = S.full ? `<div class="kick">본선 ${cap}팀 확정</div><div class="cdl">샤크탱크${EVENT.times?.sharkTank ? ' ' + hm(EVENT.times.sharkTank) : ''}</div>`
+    : before > 0 ? `<div class="kick">제출은 ${hm(S.config.submitOpenAt)}부터</div><div class="cdl">주제 선언 ${hm(S.config.topicDeadline)}까지</div>`
+    : left > 0 ? `<div class="kick">제출 마감 ${hm(S.config.submitDeadline)}까지 · 선착순</div><div class="cd num ${left < 600000 ? 'crit' : left < 3600000 ? 'hot' : ''}">${dur(left)}</div>`
+    : `<div class="kick">제출 마감</div><div class="cdl">남은 심사를 진행하고 있어요</div>`;
+  setHTML($('#hero'), `${clock}
+    <div class="stats">
+      <div class="stat"><b class="num">${S.passList.length}<small style="font-size:.55em;color:var(--muted)"> / ${cap}</small></b><span>본선 진출</span></div>
+      <div class="stat"><b class="num">${S.full ? 0 : S.counts.remaining}</b><span>남은 자리</span></div>
+      <div class="stat"><b class="num">${review.length}</b><span>심사 중</span></div>
+      <div class="stat"><b class="num">${S.subs.length}<small style="font-size:.55em;color:var(--muted)"> / ${S.teams.length}</small></b><span>제출한 팀</span></div>
+    </div>
+    <div class="prize">VC ${th}곳이 PASS하면 본선, ${th}곳이 FAIL하면 탈락${P ? ` · 본선 ${esc(P.label)} <b>${esc(P.amount)}</b>` : ''}</div>`);
+
+  setHTML($('#fin'), `<h2>본선 ${cap}자리 <span class="n num">${S.passList.length} / ${cap}</span></h2><div class="seats">${Array.from({ length: cap }, (_, i) => {
+    const id = S.passList[i];
+    if (!id) return `<div class="seat"><small>FINALIST ${String(i + 1).padStart(2, '0')}</small><div class="open">OPEN</div></div>`;
+    return `<div class="seat on${changed(id)}"><small>FINALIST ${String(i + 1).padStart(2, '0')}</small><b>${esc(name(id))}</b><span>${subOf[id]?.result?.revived ? '<em style="font-style:normal;font-weight:900;color:#FFD27A">패자부활</em> · ' : ''}${esc(subOf[id]?.serviceName || '')}</span>${mission(id) ? `<span class="mi">${esc(mission(id).split(' · ')[0])}</span>` : ''}</div>`;
+  }).join('')}</div>`);
+
+  setHTML($('#rev'), `<h2>심사 중 <span class="p" style="font-weight:700;color:var(--muted)"><span style="color:#4ADE80">●</span> PASS <span style="color:#FF5147">●</span> FAIL ● 대기</span><span class="n num">${review.length}팀</span></h2>${review.length ? `<div class="list">${review.map(x => `<div class="item${x.ready ? ' ready' : ''}${changed(x.teamId)}"><span class="no num">${no(x)}</span><span class="nm">${esc(name(x.teamId))}<small>${esc(x.serviceName || '')}</small>${mission(x.teamId) ? `<small class="mi">미션 · ${esc(mission(x.teamId))}</small>` : ''}</span>${x.ready ? '<span class="rdy">곧 결과 공개</span>' : `<span class="vdots">${Array.from({ length: S.vcs.length }, (_, k) => `<i class="${k < (x.pass || 0) ? 'p' : k < (x.pass || 0) + (x.fail || 0) ? 'f' : ''}"></i>`).join('')}<em><b class="gp">${x.pass || 0}</b>:<b class="gf">${x.fail || 0}</b></em></span>`}</div>`).join('')}</div>` : `<div class="empty">${S.subs.length ? '지금 심사 중인 팀이 없어요' : '첫 제출을 기다리고 있어요'}</div>`}`);
+
+  setHTML($('#out'), `<h2>탈락 <span class="n num">${out.length}팀</span></h2>${out.length ? `<div class="chips out">${out.map(x => `<i>${no(x)} ${esc(name(x.teamId))}</i>`).join('')}</div>` : '<div class="empty">아직 없어요</div>'}`);
+
+  // missions: who is solving which VC's problem, with live status colours
+  const topics = S.config.topics || [];
+  const by = Object.fromEntries(topics.map(t => [t.id, []]));
+  const rank = { pass: 0, review: 1, wait: 2, out: 3 }, cls = { pass: 's-p', review: 's-r', wait: 's-d', out: 's-o' };
+  S.teams.forEach(t => { const k = t.topic?.topic; if (k && by[k]) by[k].push(t); });
+  const rows = topics.map((t, i) => ({ t, i, ts: by[t.id].sort((a, b) => rank[st[a.id]] - rank[st[b.id]]) })).filter(r => r.ts.length).sort((a, b) => b.ts.length - a.ts.length || a.i - b.i);
+  setHTML($('#mis'), `<h2>미션별 도전 현황 <span class="n">${S.teams.filter(t => t.topic).length}팀 · ${rows.length}개 미션</span></h2>
+    <div class="legend"><i class="s-p">본선</i><i class="s-r">심사 중</i><i class="s-d">개발 중</i><i class="s-o">탈락</i></div>
+    ${rows.map(({ t, ts }) => { const vc = VCS.find(v => v.key === t.vc); return `<div class="mrow"><div class="c num">${ts.length}</div>
+      <div class="v">${vc ? `<img src="${vc.logo}" alt="${esc(vc.name)}">` : '<span class="wl">WILDCARD</span>'}</div>
+      <div class="t">${esc(missionTitle(t))}</div>
+      <div class="ts">${ts.map(x => `<i class="${cls[st[x.id]]}">${esc(x.name)}</i>`).join('')}</div></div>`; }).join('')}`);
+
+  // development: commits are public, so the pace of every team is too
+  const withC = S.teams.filter(t => t.commits), now = serverNow();
+  const total = withC.reduce((a, t) => a + (t.commits.count || 0), 0);
+  const live = withC.filter(t => now - (t.commits.lastAt || 0) < 15 * 60000).length;
+  const top = withC.slice().sort((a, b) => (b.commits.count || 0) - (a.commits.count || 0)).slice(0, 10);
+  const max = Math.max(1, ...top.map(t => t.commits.count || 0));
+  setHTML($('#dev'), `<h2>개발 현황 <span class="n">모든 레포는 공개</span></h2>
+    <div class="cstats"><div><b class="num">${total.toLocaleString('ko-KR')}</b><span>오늘 올라온 커밋</span></div><div><b class="num">${live}</b><span>지금 개발 중인 팀</span></div></div>
+    ${top.map(t => `<div class="bar"><b>${esc(t.name)}</b><div class="tr"><i class="${now - (t.commits.lastAt || 0) < 5 * 60000 ? 'hot' : ''}" style="width:${(100 * t.commits.count / max).toFixed(0)}%"></i></div><span>${t.commits.count}</span></div>`).join('')}
+    <div class="feed">${S.feed.slice(0, 8).map(f => `<div><b>${esc(f.team)}</b> <em>· ${ago(f.at)}</em><p>${esc(String(f.msg).split('\n')[0])}</p></div>`).join('')}</div>`);
+
+  setHTML($('#wait'), `<h2>아직 제출 전 <span class="n num">${waiting.length}팀</span></h2>${waiting.length ? `<div class="chips">${waiting.map(t => `<i>${esc(t.name)}</i>`).join('')}</div>` : '<div class="empty">모든 팀이 제출했어요</div>'}`);
+  prev = st;
+}
+
+// refresh every 6s while the page is visible (the data is cached at the edge, so this stays light)
+let timer = null;
+async function tick() {
+  clearTimeout(timer);
+  if (document.visibilityState === 'visible') { try { S = await api('/api/state?scope=public'); render(); } catch (e) { console.warn(e); } }
+  timer = setTimeout(tick, 6000);
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') tick(); });
+setInterval(() => { $('#clock').textContent = hms(serverNow()); if (S) { const el = $('.cd'); const left = new Date(S.config.submitDeadline).getTime() - serverNow(); if (el && left > 0) el.textContent = dur(left); } }, 1000);
+tick();
+</script>
+</body></html>

@@ -1,0 +1,12 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1"><title>해커톤</title><link rel="stylesheet" href="/assets/common.css">
+<style>.w{max-width:560px;margin:60px auto;padding:0 16px;display:flex;flex-direction:column;gap:12px}a.b{display:block;padding:16px;border:1px solid var(--line);border-radius:14px;text-decoration:none;font-weight:700}a.b span{display:block;color:var(--muted);font-weight:400;font-size:13px;margin-top:4px}.sub{color:var(--muted);font-size:14px;margin:-6px 0 10px}</style></head>
+<body><div class="w"><h1 id="name" style="font-size:26px;font-weight:900;margin-bottom:10px"></h1><div class="sub" id="when"></div>
+<a class="b" href="/submit">주제 선언 · 제출<span>참가 팀용</span></a>
+<a class="b" href="/status">실시간 현황<span>남은 본선 자리와 심사 현황</span></a>
+</div>
+<script type="module">
+import { EVENT, $ } from '/assets/common.js';
+document.title = EVENT.name;
+$('#name').textContent = EVENT.name;
+$('#when').textContent = `${EVENT.dateLabel} · ${EVENT.venue}`;
+</script></body></html>

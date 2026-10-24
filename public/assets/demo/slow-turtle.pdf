@@ -1,0 +1,63 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 408 >>
+stream
+0.039 0.027 0.024 rg 0 0 960 540 re f
+1.000 0.478 0.302 rg 60 300 90 8 re f
+BT /F1 16 Tf 1.000 0.478 0.302 rg 60 440 Td (TEAM 12  |  DEMO PITCH) Tj ET
+BT /F1 76 Tf 0.965 0.902 0.855 rg 60 340 Td (Second Act) Tj ET
+BT /F2 26 Tf 0.788 0.749 0.698 rg 60 250 Td (Retired craftsmen's know-how, kept as an AI tutor) Tj ET
+BT /F2 13 Tf 0.522 0.482 0.447 rg 60 56 Td (Fictional demo data - bloom-hackathon-kit) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 753 >>
+stream
+0.969 0.953 0.922 rg 0 0 960 540 re f
+BT /F1 40 Tf 0.090 0.067 0.059 rg 60 448 Td (What we built today) Tj ET
+0.851 0.467 0.341 rg 60 352 34 34 re f
+BT /F1 18 Tf 1.000 1.000 1.000 rg 70 362 Td (1) Tj ET
+BT /F2 24 Tf 0.090 0.067 0.059 rg 112 361 Td (Problem worth solving, in one sentence) Tj ET
+0.851 0.467 0.341 rg 60 282 34 34 re f
+BT /F1 18 Tf 1.000 1.000 1.000 rg 70 292 Td (2) Tj ET
+BT /F2 24 Tf 0.090 0.067 0.059 rg 112 291 Td (A live demo built from an empty repo today) Tj ET
+0.851 0.467 0.341 rg 60 212 34 34 re f
+BT /F1 18 Tf 1.000 1.000 1.000 rg 70 222 Td (3) Tj ET
+BT /F2 24 Tf 0.090 0.067 0.059 rg 112 221 Td (Next: the first 100 users in the target market) Tj ET
+BT /F2 13 Tf 0.522 0.482 0.447 rg 60 56 Td (Second Act  |  page 2 / 2) Tj ET
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000223 00000 n 
+0000000320 00000 n 
+0000000456 00000 n 
+0000000915 00000 n 
+0000001051 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+1855
+%%EOF

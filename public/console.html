@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운영 콘솔</title>
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+  body{font-size:14px}
+  .top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:#1C1410;color:#fff}
+  .top b{font-size:16px;margin-right:8px}
+  .top .btn{background:#2c211b;color:#fff;border-color:#4a3a30;padding:6px 10px;font-size:13px}
+  .top .btn.on{background:var(--fire);border-color:var(--fire)}
+  .wrap{display:grid;grid-template-columns:1fr 380px;gap:16px;padding:16px}
+  .card{padding:14px;margin-bottom:14px}
+  h3{font-size:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{font-size:12px;color:var(--muted);font-weight:700}
+  .votes{display:flex;gap:4px}
+  .v{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:#fff}
+  .v.pass{background:#1F9D55;color:#fff;border-color:#1F9D55}.v.fail{background:#C8372A;color:#fff;border-color:#C8372A}
+  .flag{background:#FFE4C2;color:#9A4A00;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700;margin-left:4px}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .row-actions .btn{padding:5px 9px;font-size:12px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .stats div{background:var(--bg3);border-radius:10px;padding:8px 4px}
+  .stats b{display:block;font-size:22px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .mini{font-size:12px;color:var(--muted)}
+  details summary{cursor:pointer;color:var(--muted);font-size:12px}
+  .detail{font-size:13px;line-height:1.6;background:var(--bg3);border-radius:8px;padding:8px 10px;margin-top:6px}
+  .log{max-height:220px;overflow:auto;font-size:12px;line-height:1.7}
+  .timerbig{font-size:34px;font-weight:900}
+  /* show mode (shark tank + matching): the stage controls take the whole console */
+  body.show .wrap{grid-template-columns:minmax(0,1fr) 440px}
+  body.show .wrap>div:first-child>.card:not(#demo):not(#match){display:none}
+  body.show .wrap>div:last-child>.card:not(.pvcard){display:none}
+  body.show #demo{padding:22px 24px}
+  body.show #demo .btn{font-size:17px;padding:12px 18px}
+  body.show #demo .timerbig{font-size:64px}
+  body.show #demo .mini{font-size:14px}
+  .offerbox{margin-top:14px;padding:14px;border:2px solid var(--fire);border-radius:12px}
+  .steps{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+  .steps span{padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted)}
+  .steps span.done{opacity:.45}
+  .steps span.cur{background:var(--fire);border-color:var(--fire);color:#fff}
+  .nextstep{font-size:15px;font-weight:800;margin:4px 0 10px}
+  .nextstep b{color:var(--fire)}
+  body.show #match .btn{font-size:17px;padding:12px 18px}
+  body.show #match [data-act="mreset"]{display:none}
+  @media (max-width:1180px){ body.show .wrap{grid-template-columns:minmax(0,1fr)} body.show .pvcard iframe{max-height:260px} }
+  .offerbox h4{margin:0 0 8px;font-size:16px}
+  input.sm{padding:6px 8px;border:1px solid var(--line);border-radius:8px;width:100%}
+  .preview{width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:8px;background:#000}
+</style>
+</head>
+<body class="tool">
+<div class="top">
+  <b id="brand">운영 콘솔</b>
+  <span id="scenes"></span>
+  <a class="btn" href="/led" target="_blank" id="ledlink">LED 열기</a>
+  <span id="conn" class="mini" style="color:#ccc"></span>
+</div>
+<div class="wrap">
+  <div>
+    <div class="card"><h3>제출 · 심사 <span class="mini" id="rule"></span></h3><div id="subs"></div></div>
+    <div class="card"><h3><span>팀 <span id="tcount"></span>개</span> <input class="sm" id="tsearch" placeholder="팀·이름 검색" style="width:200px"></h3><div id="teams"></div></div>
+  </div>
+  <div>
+    <div class="card"><div class="stats" id="stats"></div></div>
+    <div class="card pvcard"><h3>LED 미리보기</h3><iframe class="preview" id="pv" src="/led"></iframe></div>
+    <div class="card" id="ledctl"></div>
+    <div class="card" id="demo"></div>
+    <div class="card" id="match"></div>
+    <div class="card" id="cfg"></div>
+    <div class="card"><h3>도구</h3>
+      <div class="row-actions">
+        <button class="btn" id="dtest" title="참가자 채널에 테스트 메시지가 실제로 올라가요">디스코드 테스트 (실제 채널)</button>
+        <button class="btn" id="cforce">커밋 새로고침</button>
+        <button class="btn fail" id="reset">테스트 데이터 초기화</button>
+      </div>
+      <h3 style="margin-top:12px">로그</h3><div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { api, poll, serverNow, hm, hms, dur, esc, VCS, EVENT, toast, store, STATUS_KO, $ } from '/assets/common.js';
+import { SLIDES, stepSlide } from '/assets/slides.js';
+
+let KEY = new URLSearchParams(location.search).get('key') || store.get('hk-admin');
+if (!KEY) { KEY = prompt('운영 키를 입력하세요'); }
+store.set('hk-admin', KEY);
+$('#ledlink').href = `/led?key=${encodeURIComponent(KEY)}`;
+let S = null, editing = false;
+const openDetails = new Set();
+document.title = `${EVENT.short} 운영 콘솔`;
+$('#brand').textContent = `${EVENT.short} 운영 콘솔`;
+// two-letter vote chips per VC (short in assets/event.js)
+const SHORT = Object.fromEntries(VCS.map(v => [v.key, v.short || v.key.slice(0, 2).toUpperCase()]));
+const mins = sec => `${Math.round((sec || 0) / 60)}분`;
+const A = (action, extra = {}) => api('/api/admin', { method: 'POST', key: KEY, body: { action, ...extra } }).then(r => { refresh(); return r; }).catch(e => { toast(e.message, 4000); throw e; });
+const setLed = patch => A('setLed', { patch });
+const teamName = id => S.teamsFull.find(t => t.id === id)?.name || id;
+
+const SCENES = [['standby', '대기'], ['slide', '오프닝'], ['topics', '주제'], ['board', '실시간 보드'], ['commits', '커밋'], ['missions', '미션 현황'], ['break', '쉬는 시간'], ['demo', '샤크탱크'], ['match', '매칭'], ['announce', '공지'], ['closing', '클로징']];
+
+function renderTop() {
+  const cur = S.led.scene || 'board';
+  $('#scenes').innerHTML = SCENES.map(([k, n]) => `<button class="btn ${cur === k ? 'on' : ''}" data-scene="${k}">${n}</button>`).join(' ');
+  $('#conn').textContent = `동기화 ${hms(serverNow())}${S.config.test ? ' · 테스트 모드' : ''}`;
+}
+
+function renderStats() {
+  const c = S.counts;
+  $('#stats').innerHTML = [['남은 자리', c.remaining], ['제출', c.submitted], ['심사 대기·중', c.queued + c.reviewing], ['탈락', c.fail], ['본선', c.pass], ['주제 선언', `${c.declared}/${c.teams}`], ['마감', c.closed], ['팀', c.teams]].map(([l, v]) => `<div><b>${v}</b><span class="mini">${l}</span></div>`).join('');
+  $('#rule').textContent = `${S.config.threshold}표 먼저 · 정원 ${S.config.capacity}`;
+}
+
+function renderSubs() {
+  if (!S.subs.length) { $('#subs').innerHTML = '<div class="mini">아직 제출이 없어요.</div>'; return; }
+  $('#subs').innerHTML = `<table><thead><tr><th>#</th><th>팀</th><th>상태</th><th>VC 투표</th><th>결정</th><th></th></tr></thead><tbody>${S.subs.map(x => {
+    const vv = VCS.map(v => { const m = x.votes.find(y => y.vc === v.key); return `<div class="v ${m?.vote || ''}" title="${v.name}${m?.comment ? ': ' + esc(m.comment) : ''}">${SHORT[v.key]}</div>`; }).join('');
+    const auto = x.auto?.result ? `<b style="color:${x.auto.result === 'pass' ? '#1F9D55' : '#C8372A'}">${x.auto.result.toUpperCase()}</b> ${x.auto.pass}:${x.auto.fail}` : `<span class="mini">${x.auto?.pass || 0}:${x.auto?.fail || 0}</span>`;
+    const acts = x.dec
+      ? `<button class="btn" data-act="revoke" data-id="${x.teamId}">발표 취소</button>`
+      : x.status === 'closed' ? '' : `${x.auto?.result ? `<button class="btn primary" data-act="reveal" data-id="${x.teamId}">발표</button>` : ''}
+         <button class="btn pass" data-act="force-pass" data-id="${x.teamId}">PASS로</button><button class="btn fail" data-act="force-fail" data-id="${x.teamId}">FAIL로</button>`;
+    return `<tr><td class="num">${x.no}<div class="mini">${hm(x.at)}</div></td>
+      <td><b>${esc(teamName(x.teamId))}</b>${(x.flags || []).map(f => `<span class="flag">${{ early: `${hm(S.config.buildStart)} 전 커밋`, bulk: '첫 커밋 대량', history: '기존 커밋 20개+' }[f] || f}</span>`).join('')}
+        <div class="mini">${esc(x.serviceName)} · ${esc(x.oneLiner)}</div>
+        <details data-d="${x.teamId}" ${openDetails.has(x.teamId) ? 'open' : ''}><summary>자세히</summary><div class="detail">
+          주제: ${esc(x.topicTitle || '')}<br>타깃: ${esc(x.market || '')}<br>
+          <a href="${esc(x.demoUrl)}" target="_blank">데모</a> · <a href="${esc(x.pdfUrl)}" target="_blank">PDF</a> · <a href="${esc(x.repo)}${x.repoSha ? '/tree/' + x.repoSha : ''}" target="_blank">레포@제출시점</a><br>
+          오늘 만든 것: ${esc(x.builtToday || '')}<br>기존 코드: ${x.usedExisting ? '있음 · ' + esc(x.existingNote) : '없음'}<br>
+          ${x.votes.map(v => `${esc(v.vc)}: ${v.vote} ${v.comment ? '“' + esc(v.comment) + '”' : ''} ${v.memo ? '(메모: ' + esc(v.memo) + ')' : ''}`).join('<br>')}
+          ${x.dec ? '' : `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">대리 투표
+            <select id="pv-vc-${x.teamId}" class="sm" style="width:auto"><option value="">VC 선택</option>${VCS.map(v => `<option value="${v.key}">${v.name}</option>`).join('')}</select>
+            <input id="pv-cm-${x.teamId}" class="sm" placeholder="한줄평(선택)" style="width:180px">
+            <button class="btn pass" data-act="pvote" data-v="pass" data-id="${x.teamId}" style="padding:4px 8px">PASS</button><button class="btn fail" data-act="pvote" data-v="fail" data-id="${x.teamId}" style="padding:4px 8px">FAIL</button></div>`}
+        </div></details></td>
+      <td><span class="chip st-${x.status}">${STATUS_KO[x.status]}${x.passNo ? ' ' + x.passNo : ''}</span></td>
+      <td><div class="votes">${vv}</div></td><td>${auto}</td><td><div class="row-actions">${acts}</div></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function renderTeams() {
+  const q = $('#tsearch').value.trim();
+  const list = S.teamsFull.filter(t => !q || t.name.includes(q) || t.members.join(' ').includes(q));
+  $('#tcount').textContent = S.teamsFull.length;
+  $('#teams').innerHTML = `<table><tbody>${list.map(t => {
+    const sub = S.subs.find(x => x.teamId === t.id);
+    return `<tr><td><b>${esc(t.name)}</b><div class="mini">${esc(t.members.join(', '))} · 이메일 ${t.hashes}개</div></td>
+    <td class="mini">${t.topic ? esc(S.config.topics.find(x => x.id === t.topic.topic)?.title || '') + '<br><a href="' + esc(t.topic.repo) + '" target="_blank">레포</a>' + (t.commits ? ` · ${t.commits.count}커밋` : '') : '주제 미선언'}</td>
+    <td>${sub ? `<span class="chip st-${sub.status}">#${sub.no}</span>` : ''}</td>
+    <td><button class="btn" data-act="addemail" data-id="${t.id}" style="padding:4px 8px;font-size:12px">이메일 추가</button></td></tr>`;
+  }).join('')}</tbody></table>
+  <details style="margin-top:10px"><summary>팀 추가 · 수정</summary><div class="detail">
+    <input class="sm" id="nt-name" placeholder="팀명 (같은 이름이면 수정)"><input class="sm" id="nt-mem" placeholder="팀원 이름, 쉼표로" style="margin-top:6px"><input class="sm" id="nt-email" placeholder="팀원 이메일, 쉼표로 (본인 확인용)" style="margin-top:6px">
+    <button class="btn primary" id="nt-save" style="margin-top:6px">저장</button></div></details>
+  <details style="margin-top:6px"><summary>대리 제출 (폼이 안 될 때만)</summary><div class="detail">
+    <select class="sm" id="ms-team"><option value="">팀 선택</option>${S.teamsFull.filter(t => !S.subs.some(x => x.teamId === t.id)).map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select>
+    <input class="sm" id="ms-svc" placeholder="서비스 이름" style="margin-top:6px"><input class="sm" id="ms-one" placeholder="한 줄 소개" style="margin-top:6px">
+    <input class="sm" id="ms-demo" placeholder="데모 링크" style="margin-top:6px"><input class="sm" id="ms-pdf" placeholder="발표자료 PDF 링크" style="margin-top:6px">
+    <input class="sm" id="ms-repo" placeholder="GitHub 레포" style="margin-top:6px">
+    <button class="btn primary" id="ms-save" style="margin-top:6px">제출 등록 (지금 시각, 다음 번호)</button></div></details>`;
+}
+
+function renderLedCtl() {
+  const led = S.led, a = led.announce || {};
+  $('#ledctl').innerHTML = `<h3>LED 제어</h3>
+    <div class="row-actions"><button class="btn" data-act="slide" data-d="-1">◀ 슬라이드</button><button class="btn" data-act="slide" data-d="1">슬라이드 ▶</button>
+      <button class="btn" data-act="topics" data-d="-1">◀ 주제</button><button class="btn" data-act="topics" data-d="1">주제 카드 ▶</button>
+      ${led.flash ? '<button class="btn" data-act="clearflash">결과 화면 닫기</button>' : ''}</div>
+    <div class="mini" style="margin:6px 0">슬라이드 ${(led.slide || 0) + 1}/${SLIDES.length} · ${esc(SLIDES[led.slide || 0]?.tag || '')} · 주제 카드 ${led.topicsShown ?? 0}장 공개</div>
+    <details><summary>공지 띄우기</summary><div class="detail">
+      <input class="sm" id="an-k" placeholder="작은 제목 (예: NOTICE)" value="${esc(a.kicker || '')}">
+      <input class="sm" id="an-t" placeholder="제목" value="${esc(a.title || '')}" style="margin-top:6px">
+      <textarea class="sm" id="an-b" placeholder="본문" style="margin-top:6px;min-height:60px">${esc(a.body || '')}</textarea>
+      <button class="btn primary" id="an-go" style="margin-top:6px">공지 띄우기</button></div></details>
+    <details><summary>대기 화면 · 쉬는 시간</summary><div class="detail">
+      ${EVENT.media?.trailer ? `<label style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><input type="checkbox" id="sbsound" ${led.standbySound !== false ? 'checked' : ''}> 대기 화면 트레일러 소리 켜기</label>` : ''}
+      <input class="sm" id="wifi" placeholder="Wi-Fi 안내 (대기 화면)" value="${esc(led.wifi || '')}">
+      <button class="btn" id="wifi-go" style="margin-top:6px">저장</button></div></details>`;
+}
+
+function renderDemo() {
+  const demo = { order: S.passList, idx: 0, pitchSec: EVENT.sharkTank?.pitchSec || 180, qaSec: EVENT.sharkTank?.qaSec || 420, ...(S.led.demo || {}) };
+  const order = demo.order?.length ? demo.order : S.passList;
+  let t = '대기';
+  if (demo.endsAt || demo.left != null) { const l = demo.endsAt ? demo.endsAt - serverNow() : demo.left; t = `${demo.phase === 'qa' ? '질의응답' : '발표'} ${l < 0 ? '+' + dur(-l, false) : dur(l, false)}${demo.endsAt ? '' : ' (정지)'}`; }
+  $('#demo').innerHTML = `<h3>샤크탱크 <span><button class="btn" data-act="showmode">${document.body.classList.contains('show') ? '기본 화면' : '크게 보기'}</button> <a class="mini" href="/timer" target="_blank">무대 타이머</a></span></h3>
+    <div class="timerbig num">${t}</div>
+    ${order.length ? stepBar(demo, order) : ''}
+    <div class="mini" style="margin:4px 0 8px">${order.map((id, i) => `<span style="${i === demo.idx ? 'font-weight:800;color:var(--fire)' : ''}">${i + 1}.${esc(teamName(id))}</span>`).join(' · ') || '본선 팀이 정해지면 순서가 채워져요'}</div>
+    <div class="row-actions">
+      <button class="btn" data-demo="go" data-idx="${(demo.idx || 0) - 1}">◀ 이전 팀</button><button class="btn" data-demo="go" data-idx="${(demo.idx || 0) + 1}">다음 팀 ▶</button>
+      <button class="btn primary" data-demo="start" data-phase="pitch">발표 ${mins(demo.pitchSec)}</button><button class="btn primary" data-demo="start" data-phase="qa">질의응답 ${mins(demo.qaSec)}</button>
+      <button class="btn" data-demo="${demo.endsAt ? 'pause' : 'resume'}">${demo.endsAt ? '일시정지' : '재개'}</button><button class="btn" data-demo="reset">리셋</button>
+      <button class="btn" data-demo="order">본선 순서로 다시 채우기</button>
+    </div>
+    ${order.length ? stageControls(demo, order) : ''}`;
+}
+
+// where we are for the team on stage, and the one button to press next
+const STEPS = demo => ['팀 소개', `발표 ${mins(demo.pitchSec)}`, `질의응답 ${mins(demo.qaSec)}`, 'VC 제안 받기', '공개 · 확정', '다음 팀'];
+function stageStep(demo, id) {
+  const offer = S.led.offer, tm = S.led.teamMatch || {};
+  if (tm[id]) return 6;
+  if (offer?.teamId === id && offer.shown) return 5;
+  if (offer?.teamId === id && offer.open) return 4;
+  if (demo.phase === 'qa') return 3;
+  if (demo.phase === 'pitch') return 2;
+  return 1;
+}
+function stepBar(demo, order) {
+  const id = order[Math.max(0, Math.min(demo.idx || 0, order.length - 1))];
+  const st = stageStep(demo, id);
+  const picks = S.matches || {}, hands = VCS.filter(v => (picks[v.key] || []).includes(id)).length;
+  const last = (demo.idx || 0) >= order.length - 1;
+  const next = { 1: `팀을 소개하고 <b>발표 ${mins(demo.pitchSec)}</b>`, 2: `발표가 끝나면 <b>질의응답 ${mins(demo.qaSec)}</b>`, 3: `질의응답이 끝나면 아래 <b>VC 제안 받기 시작</b>`,
+    4: `VC 응답이 모이면 <b>마감하고 LED에 공개</b>`, 5: hands ? `팀이 고른 VC의 <b>확정</b>` : `제안이 없어요 · <b>${last ? '매칭 결과 카드의 최종 결과' : '다음 팀 ▶'}</b>`,
+    6: last ? `마지막 팀이에요 · 아래 <b>LED에 최종 결과 표시</b>` : `<b>다음 팀 ▶</b>` }[st];
+  return `<div class="steps">${STEPS(demo).map((x, i) => `<span class="${i + 1 === st ? 'cur' : i + 1 < st ? 'done' : ''}">${i + 1}. ${x}</span>`).join('')}</div>
+    <div class="nextstep">다음: ${next}</div>`;
+}
+
+// what the LED shows for the current finalist: intro card → their submitted PDF → their live demo
+function stageControls(demo, order) {
+  const id = order[Math.max(0, Math.min(demo.idx || 0, order.length - 1))];
+  const x = S.subs.find(s => s.teamId === id) || {};
+  const view = demo.view || 'intro', page = demo.page || 0, n = S.config.stagePages?.[id] || 0;
+  const on = v => view === v ? 'primary' : '';
+  return `<div class="row-actions" style="margin-top:10px">
+      <button class="btn ${on('intro')}" data-demo="view" data-view="intro">팀 소개</button>
+      <button class="btn ${on('slides')}" data-demo="view" data-view="slides">발표자료</button>
+      <button class="btn ${on('demo')}" data-demo="view" data-view="demo">데모</button>
+      <button class="btn" data-demo="page" data-d="-1">◀ 이전 장</button>
+      <span class="mini" style="align-self:center">${view === 'slides' ? `${page + 1}${n ? ' / ' + n : ''}장` : ''}</span>
+      <button class="btn" data-demo="page" data-d="1">다음 장 ▶</button>
+    </div>
+    <div class="mini" style="margin-top:6px">LED에 <b>${esc(teamName(id))}</b> ${view === 'slides' ? '발표자료' : view === 'demo' ? '데모' : '팀 소개'} · '발표 ${mins(demo.pitchSec)}'을 누르면 발표자료로 바뀌어요 · 이 창에서 ←/→ 키나 리모컨으로 장 넘기기 ·
+      <a href="${esc(x.pdfUrl || '#')}" target="_blank">PDF 새 창</a> · <a href="${esc(x.demoUrl || '#')}" target="_blank">데모 새 창</a></div>
+    ${offerControls(id)}`;
+}
+
+let kStage = null, kStageAt = 0;
+const stagePage = d => {
+  const demo = { ...(S.led.demo || {}), ...(kStage && Date.now() - kStageAt < 4000 ? kStage : {}) };
+  const order = demo.order?.length ? demo.order : S.passList;
+  const id = order[Math.max(0, Math.min(demo.idx || 0, order.length - 1))];
+  const n = S.config.stagePages?.[id] || 50;
+  const page = (demo.view || 'intro') === 'intro' ? 0 : Math.max(0, Math.min((demo.page || 0) + d, n - 1));
+  kStage = { view: 'slides', page }; kStageAt = Date.now();
+  return A('demo', { op: 'view', view: 'slides', page });
+};
+
+// after each Q&A: open offers → VCs answer on their pages → close and show → the team picks → confirm
+function offerControls(id) {
+  const led = S.led, offer = led.offer, tm = led.teamMatch || {}, picks = S.matches || {};
+  const vcName = k => VCS.find(v => v.key === k)?.name || k;
+  const done = Object.entries(tm).map(([t, k]) => `${esc(teamName(t))}–${esc(vcName(k))}`).join(' · ');
+  let body;
+  if (tm[id]) body = `<div><b>${esc(vcName(tm[id]))}</b>와(과) 매칭 확정 <button class="btn" data-act="munpair" data-id="${id}">취소</button></div>`;
+  else if (offer?.teamId === id && offer.open) {
+    const yes = VCS.filter(v => (picks[v.key] || []).includes(id)), pass = VCS.filter(v => picks[v.key] && !(picks[v.key] || []).includes(id)), wait = VCS.filter(v => !picks[v.key]);
+    body = `<div class="mini">응답 ${yes.length + pass.length}/${VCS.length}곳 · 제안: ${yes.map(v => v.name).join(', ') || '-'} · 패스: ${pass.map(v => v.name).join(', ') || '-'} · 아직: ${wait.map(v => v.name).join(', ') || '-'}</div>
+      <div class="row-actions" style="margin-top:8px"><button class="btn primary" data-act="ofreveal">마감하고 LED에 공개</button></div>`;
+  } else if (offer?.teamId === id && offer.shown) {
+    const yes = VCS.filter(v => (picks[v.key] || []).includes(id));
+    body = yes.length ? `<div class="mini">${yes.length > 1 ? '팀이 고른 VC를 눌러 확정하세요' : '확정을 눌러 매칭을 마무리하세요'}</div><div class="row-actions" style="margin-top:8px">${yes.map(v => `<button class="btn primary" data-act="mconfirm" data-vc="${v.key}" data-id="${id}">${esc(v.name)} 확정</button>`).join('')}</div>`
+      : `<div class="mini">제안한 VC가 없어요. '다음 팀 ▶'으로 넘어가세요.</div>`;
+  } else body = `<div class="row-actions"><button class="btn primary" data-act="ofopen" data-id="${id}">VC 제안 받기 시작</button></div><div class="mini" style="margin-top:6px">질의응답이 끝나면 누르세요. VC ${VCS.length}곳의 심사 페이지가 이 팀 제안 화면으로 바뀌어요.</div>`;
+  return `<div class="offerbox"><h4>VC 후속 미팅 제안 · ${esc(teamName(id))}</h4>${body}${done ? `<div class="mini" style="margin-top:8px">매칭 완료: ${done}</div>` : ''}</div>`;
+}
+
+function renderMatch() {
+  const led = S.led, tm = led.teamMatch || {};
+  const vcName = k => VCS.find(v => v.key === k)?.name || k;
+  const rows = S.passList.map(id => `<tr><td>${esc(teamName(id))}</td><td>${tm[id] ? `<b>${esc(vcName(tm[id]))}</b>` : '<span class="mini">-</span>'}</td></tr>`).join('');
+  $('#match').innerHTML = `<h3>마지막 단계 · ${S.passList.length || S.config.capacity}팀이 끝난 뒤 <span class="mini">후속 미팅 ${Object.keys(tm).length}/${S.passList.length}팀</span></h3>
+    <table><tbody>${rows}</tbody></table>
+    <div class="row-actions" style="margin-top:10px">
+      <button class="btn primary" data-act="mfinal">${led.matchFinal ? '최종 결과 화면 끄기' : 'LED에 최종 결과 표시'}</button>
+      <button class="btn" data-act="mreset">매칭 초기화</button>
+    </div>
+    <div class="mini" style="margin-top:6px">LED가 매칭 화면으로 바뀌고, 매칭된 팀은 후속 미팅, 나머지 팀은 탈락으로 떠요.</div>`;
+}
+
+function renderCfg() {
+  const c = S.config;
+  const tg = (k, n) => `<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-cfg="${k}" ${c[k] ? 'checked' : ''}> ${n}</label>`;
+  $('#cfg').innerHTML = `<h3>설정</h3>
+    <div class="grid2">${tg('topicsRevealed', '주제 공개 (선언 시작)')}${tg('submitPaused', '제출 일시중지')}${tg('test', '테스트 모드 (시간 제한 무시)')}${tg('discordMuted', '디스코드 알림 끄기')}</div>
+    <div class="grid2" style="margin-top:8px">
+      <label class="mini">정원<input class="sm" data-num="capacity" value="${c.capacity}"></label>
+      <label class="mini">결정 표수<input class="sm" data-num="threshold" value="${c.threshold}"></label>
+      <label class="mini">주제 선언 마감<input class="sm" data-txt="topicDeadline" value="${c.topicDeadline}"></label>
+      <label class="mini">제출 시작<input class="sm" data-txt="submitOpenAt" value="${c.submitOpenAt}"></label>
+      <label class="mini">제출 마감<input class="sm" data-txt="submitDeadline" value="${c.submitDeadline}"></label>
+      <label class="mini">빌딩 시작(커밋 기준)<input class="sm" data-txt="buildStart" value="${c.buildStart}"></label>
+    </div>`;
+}
+
+// re-render a card without closing open <details> or interrupting typing inside it
+function keep(sel, fn) {
+  const el = $(sel);
+  const a = document.activeElement;
+  if (a && el.contains(a) && /INPUT|SELECT|TEXTAREA/.test(a.tagName)) return;
+  const open = new Set([...el.querySelectorAll('details[open] > summary')].map(x => x.textContent));
+  fn();
+  el.querySelectorAll('details > summary').forEach(x => { if (open.has(x.textContent)) x.parentElement.open = true; });
+}
+
+// show mode: on by default while the LED is on the shark tank or matching scene; the operator can switch it off
+let showPref = store.get('hk-show');
+function applyShow() {
+  const auto = ['demo', 'match'].includes(S?.led?.scene);
+  const on = showPref === 'on' || (showPref !== 'off' && auto);
+  if (document.body.classList.contains('show') === on) return;
+  document.body.classList.toggle('show', on);
+  const left = document.querySelector('.wrap>div:first-child'), right = document.querySelector('.wrap>div:last-child');
+  if (on) { left.prepend($('#match')); left.prepend($('#demo')); }
+  else { right.insertBefore($('#demo'), $('#cfg')); right.insertBefore($('#match'), $('#cfg')); }
+}
+function render() {
+  if (!S) return;
+  const inSubs = document.activeElement && $('#subs').contains(document.activeElement) && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
+  renderTop(); renderStats(); if (!inSubs) renderSubs(); keep('#ledctl', renderLedCtl); applyShow(); renderDemo(); renderMatch();
+  if (!editing) { keep('#cfg', renderCfg); keep('#teams', renderTeams); }
+  $('#log').innerHTML = S.events.map(e => `<div>${hms(e.at)} · ${esc(e.text)}</div>`).join('');
+}
+// the operator hears a ding when a team has its three votes and is ready to be announced
+let readySeen = null, AC2 = null;
+addEventListener('pointerdown', () => { try { AC2 ||= new AudioContext(); AC2.resume(); } catch {} });
+const ding = () => { if (!AC2) return; const t = AC2.currentTime; [[988, 0], [1318.5, .15], [1760, .3]].forEach(([f, d]) => { const o = AC2.createOscillator(), g = AC2.createGain(); o.frequency.value = f; g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(.25, t + d + .02); g.gain.exponentialRampToValueAtTime(.001, t + d + .6); o.connect(g); g.connect(AC2.destination); o.start(t + d); o.stop(t + d + .7); }); };
+// mission cards stay secret until revealed; opening them here (outside the slide) asks first, because it also opens topic declaration
+function revealTopics() {
+  if (S.config.topicsRevealed) return true;
+  if (!confirm('미션을 공개할까요? 공개하면 참가자 주제 선언도 바로 열려요.')) return false;
+  A('setConfig', { patch: { topicsRevealed: true } });
+  return true;
+}
+async function refresh() {
+  S = await api('/api/state?scope=admin', { key: KEY });
+  const ready = S.subs.filter(x => x.auto?.result && !['pass', 'fail', 'closed'].includes(x.status)).length;
+  if (readySeen !== null && ready > readySeen) { ding(); toast('발표할 팀이 생겼어요. 주황 "발표" 버튼을 확인하세요', 5000); }
+  readySeen = ready; render();
+}
+poll(refresh, 3000);
+
+document.addEventListener('focusin', e => { if (e.target.matches('#cfg input, #teams input, #teams select, #tsearch')) editing = true; });
+document.addEventListener('focusout', e => { if (e.target.matches('#cfg input, #teams input, #teams select, #tsearch')) setTimeout(() => editing = false, 300); });
+document.addEventListener('toggle', e => { const d = e.target; if (d.dataset?.d) d.open ? openDetails.add(d.dataset.d) : openDetails.delete(d.dataset.d); }, true);
+$('#tsearch').addEventListener('input', () => { editing = false; renderTeams(); editing = true; });
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.id === 'sbsound') return setLed({ standbySound: el.checked });
+  if (el.dataset.cfg) A('setConfig', { patch: { [el.dataset.cfg]: el.checked } });
+  if (el.dataset.num) A('setConfig', { patch: { [el.dataset.num]: Number(el.value) } });
+  if (el.dataset.txt) A('setConfig', { patch: { [el.dataset.txt]: el.value.trim() } });
+});
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = b.dataset.id, led = S.led;
+  if (b.dataset.scene) {
+    if (b.dataset.scene === 'topics') { if (!revealTopics()) return; return setLed({ scene: 'slide', slide: SLIDES.findIndex(x => x.topics), topicsShown: 0 }); }
+    return setLed({ scene: b.dataset.scene });
+  }
+  if (b.dataset.demo) {
+    const op = b.dataset.demo;
+    if (op === 'order') return A('demo', { op: 'order', order: S.passList });
+    if (op === 'view') { kStage = null; return A('demo', { op: 'view', view: b.dataset.view }); }
+    if (op === 'page') return stagePage(Number(b.dataset.d));
+    if (op === 'go') kStage = null;
+    return A('demo', { op, idx: Number(b.dataset.idx), phase: b.dataset.phase });
+  }
+  switch (b.dataset.act) {
+    case 'reveal': return A('reveal', { teamId: id });
+    case 'force-pass': if (confirm(`${teamName(id)}을(를) PASS로 발표할까요? (표 결과와 다를 수 있어요)`)) A('reveal', { teamId: id, result: 'pass' }); return;
+    case 'force-fail': if (confirm(`${teamName(id)}을(를) FAIL로 발표할까요?`)) A('reveal', { teamId: id, result: 'fail' }); return;
+    case 'revoke': if (confirm('발표를 취소할까요? LED와 디스코드에 이미 나간 내용은 되돌려지지 않아요.')) A('revoke', { teamId: id }); return;
+    case 'clearflash': return A('clearFlash');
+    case 'slide': {
+      const patch = stepSlide({ ...led, scene: 'slide' }, Number(b.dataset.d), S.config.topics.length);
+      if (SLIDES[patch.slide ?? led.slide]?.topics && !S.config.topicsRevealed) A('setConfig', { patch: { topicsRevealed: true } });
+      return setLed(patch);
+    }
+    case 'pvote': {
+      const vc = $('#pv-vc-' + id).value, vote = b.dataset.v;
+      if (!vc) return toast('VC를 고르세요');
+      return A('setVote', { teamId: id, vc, vote, comment: $('#pv-cm-' + id).value });
+    }
+    case 'topics': if (!revealTopics()) return; return setLed({ scene: 'slide', slide: SLIDES.findIndex(x => x.topics), topicsShown: Math.max(0, Math.min((led.topicsShown ?? 0) + Number(b.dataset.d), S.config.topics.length)) });
+    case 'mlock': return setLed({ matchLocked: !led.matchLocked });
+    case 'mconfirm': return A('matchConfirm', { vc: b.dataset.vc, teamId: id });
+    case 'ofopen': return A('offerOpen', { teamId: id });
+    case 'ofreveal': return A('offerReveal');
+    case 'mreset': if (confirm('매칭 기록(제안·확정)을 모두 지울까요?')) A('matchReset'); return;
+    case 'showmode': showPref = document.body.classList.contains('show') ? 'off' : 'on'; store.set('hk-show', showPref); applyShow(); render(); return;
+    case 'munpair': return A('matchUnpair', { teamId: id });
+    case 'msingles': return A('matchConfirmSingles');
+    case 'mnext': if (confirm('다음 라운드를 열까요? 이번 라운드 선택은 지워지고, 매칭 안 된 VC만 남은 팀 중에서 다시 골라요.')) A('matchNextRound'); return;
+    case 'mshow': return setLed({ scene: 'match', matchReveal: true, matchShown: (led.matchShown || 0) + 1 });
+    case 'mfinal': return setLed({ scene: 'match', matchReveal: true, matchShown: 99, matchFinal: !led.matchFinal });
+    case 'addemail': { const em = prompt(`${teamName(id)} 팀에 추가할 이메일`); if (em) A('upsertTeam', { team: { id, emails: [em] } }); return; }
+  }
+  if (b.id === 'an-go') return setLed({ scene: 'announce', announce: { kicker: $('#an-k').value, title: $('#an-t').value, body: $('#an-b').value } });
+  if (b.id === 'wifi-go') return setLed({ wifi: $('#wifi').value });
+  if (b.id === 'nt-save') {
+    const name = $('#nt-name').value.trim(); if (!name) return;
+    const exist = S.teamsFull.find(t => t.name === name);
+    return A('upsertTeam', { team: { id: exist?.id, name, members: $('#nt-mem').value ? $('#nt-mem').value.split(',').map(s => s.trim()).filter(Boolean) : exist?.members, emails: $('#nt-email').value.split(',').map(s => s.trim()).filter(Boolean) } });
+  }
+  if (b.id === 'ms-save') {
+    const teamId = $('#ms-team').value; if (!teamId) return toast('팀을 고르세요');
+    if (!confirm(`${teamName(teamId)} 팀을 지금 시각으로 제출 처리할까요?`)) return;
+    return A('addSubmission', { teamId, fields: { serviceName: $('#ms-svc').value, oneLiner: $('#ms-one').value, demoUrl: $('#ms-demo').value, pdfUrl: $('#ms-pdf').value, repo: $('#ms-repo').value, builtToday: '(운영진 대리 제출)' } });
+  }
+  if (b.id === 'dtest') { const r = await A('discordTest'); toast(`제출 채널 ${r.submit?.ok ? 'OK' : '실패/미설정'} · 결과 채널 ${r.result?.ok ? 'OK' : '실패/미설정'}`, 4000); }
+  if (b.id === 'cforce') { await fetch('/api/commits?force=1'); toast('커밋 새로고침 요청'); }
+  if (b.id === 'reset') { const c = prompt('제출·투표·결과를 모두 지웁니다 (팀 명단은 유지). 진행하려면 RESET 입력'); if (c === 'RESET') A('resetAll', { confirm: 'RESET', keepTeams: true }); }
+});
+
+// a presentation clicker (PageDown/PageUp or arrows) also steps the opening while this console window has focus
+let clickQ = Promise.resolve(), kLed = null, kAt = 0;
+addEventListener('keydown', e => {
+  if (!S || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)) return;
+  const fwd = ['PageDown', 'ArrowRight', 'ArrowDown'].includes(e.key), back = ['PageUp', 'ArrowLeft', 'ArrowUp'].includes(e.key);
+  // keep our own copy for a few seconds so quick presses never read a stale refresh
+  const led = kLed && Date.now() - kAt < 4000 ? kLed : (S.led || {});
+  // during the shark tank the same keys turn the finalist's PDF pages
+  if ((fwd || back) && (S.led || {}).scene === 'demo') { e.preventDefault(); clickQ = clickQ.then(() => stagePage(fwd ? 1 : -1)).catch(() => {}); return; }
+  if ((!fwd && !back) || (led.scene !== 'slide' && !(led.scene === 'standby' && fwd))) return;
+  e.preventDefault();
+  const patch = led.scene === 'standby' ? { scene: 'slide', slide: 0 } : stepSlide(led, fwd ? 1 : -1, S.config.topics.length);
+  if (SLIDES[patch.slide ?? led.slide]?.topics && !S.config.topicsRevealed) { S.config.topicsRevealed = true; A('setConfig', { patch: { topicsRevealed: true } }); }
+  kLed = { ...led, ...patch }; kAt = Date.now();
+  clickQ = clickQ.then(() => setLed(patch)).catch(() => {});
+});
+</script>
+</body>
+</html>

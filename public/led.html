@@ -1,0 +1,1233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LED</title>
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+  @font-face{font-family:'Anton';src:url(/assets/fonts/Anton-Regular.ttf) format('truetype');font-display:block}
+  @font-face{font-family:'Black Han Sans';src:url(/assets/fonts/BlackHanSans-Regular.ttf) format('truetype');font-display:block}
+  /* ===== LED theme v1: poster look (sky, kraft paper, fire, red type) ===== */
+  :root{
+    --sky1:#BFE1F7; --sky2:#E6F3FC; --cream:#FBF4E8; --paper:#FFFDF8; --kraft:#DCC093; --kraft2:#C9A26B;
+    --ink:#23140D; --muted:#6E5748; --faint:#A48F80; --line:rgba(35,20,13,.14);
+    --red:#B3231B; --red2:#8E1812; --fire:#FF6A1A; --flame:#FFC23D; --pink:#F2789A; --gold:#E08A00; --ok:#1F8A4C;
+    --disp:'Anton','Pretendard Variable',sans-serif; --kdisp:'Black Han Sans','Pretendard Variable',sans-serif;
+  }
+  html,body{height:100%;overflow:hidden}
+  body{color:var(--ink);background:#EAF5FC;margin:0;display:flex;align-items:center;justify-content:center}
+  /* fixed 16:9 stage: every size is relative to it (cq units), so any window shape letterboxes instead of breaking */
+  #stage{position:relative;width:min(100vw,calc(100vh * 16 / 9));height:min(100vh,calc(100vw * 9 / 16));container-type:size;overflow:hidden;display:grid;grid-template-rows:9cqh 1fr 13cqh;grid-template-columns:minmax(0,1fr)}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.12;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .22  0 0 0 0 .12  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+  .disp{font-family:var(--disp);font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:.92}
+  .kd{font-family:var(--kdisp);font-weight:400;letter-spacing:-.01em;line-height:1.08}
+  .red{color:var(--red)} .fire{color:var(--fire)}
+  .num{font-variant-numeric:tabular-nums}
+  /* ---------- frame ---------- */
+  .hdr{display:flex;align-items:center;justify-content:space-between;padding:0 3cqw;position:relative;z-index:5}
+  .brand{display:flex;align-items:baseline;gap:1.4cqw}
+  .brand .title{font-family:var(--disp);font-size:4.4cqh;color:var(--red);letter-spacing:.02em;text-transform:uppercase}
+  .brand .title b{font-weight:400;color:var(--ink)}
+  .brand .sub{font-size:1.9cqh;color:var(--muted);font-weight:700;letter-spacing:.04em}
+  .tag{font-weight:900;font-size:1.9cqh;letter-spacing:.2em;color:var(--red);display:flex;align-items:center;gap:.8cqw}
+  .tag .dot{width:1.2cqh;height:1.2cqh;border-radius:50%;background:var(--red);animation:blink 1.4s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .hdr .right{display:flex;align-items:center;gap:1.6cqw}
+  .clock{font-size:3cqh;font-weight:800;color:var(--ink)}
+  .mascot{height:8cqh;margin-top:2.6cqh}
+  footer{display:flex;align-items:center;justify-content:center;gap:1.8cqw;padding:0 2.4cqw;min-width:0;overflow:hidden;position:relative;z-index:5;
+    background:#fff;border-top:2px solid rgba(35,20,13,.08)}
+  footer .grp{display:flex;align-items:center;gap:min(2.2cqw,3.4cqh);min-width:0}
+  footer img{display:block}
+  footer .sep{width:2px;height:5.6cqh;background:var(--line)}
+  main{position:relative;overflow:hidden;padding:2.4cqh 3cqw;z-index:2}
+  .scene{position:absolute;inset:2.4cqh 3cqw;display:none}
+  .scene.on{display:flex;animation:fadein .5s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(1cqh)}to{opacity:1;transform:none}}
+  .kicker{font-size:2.2cqh;font-weight:900;letter-spacing:.2em;color:var(--red)}
+  .muted{color:var(--muted)}
+  .h1{font-family:var(--kdisp);font-size:9cqh;line-height:1.1}
+  .h2{font-size:4cqh;font-weight:800;line-height:1.3}
+  .p{font-size:2.8cqh;line-height:1.6;color:var(--muted);font-weight:500}
+  .paper{background:#fff;border-radius:1.2cqh}
+  .kraftc{background:linear-gradient(160deg,#E4CA9E,#D2AE79);border-radius:1.2cqh}
+  .rays{position:absolute;inset:-50%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,106,26,.14) 0deg 3deg,transparent 3deg 10deg);animation:spin 120s linear infinite;z-index:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* ---------- board ---------- */
+  #board{gap:2.4cqw}
+  #board .left{flex:0 0 31%;display:flex;flex-direction:column;justify-content:center;gap:2cqh;padding-right:2.4cqw;border-right:2px dashed rgba(179,35,27,.25)}
+  .big{font-family:var(--disp);line-height:.85;font-size:34cqh;color:var(--red)}
+  .big small{font-size:10cqh;color:var(--faint)}
+  .cd{font-family:var(--disp);font-size:8cqh;color:var(--ink);letter-spacing:.02em}
+  .stats{display:flex;gap:1.6cqw;font-size:2.1cqh;color:var(--muted);flex-wrap:wrap;font-weight:600}
+  .stats b{color:var(--ink);font-size:3.2cqh;margin-right:.3cqw;font-weight:900}
+  #board .right{flex:1;display:flex;flex-direction:column;gap:2cqh;min-width:0}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:1.4cqh 1.1cqw;flex:1.3;min-height:0}
+  .slot{border:3px dashed rgba(179,35,27,.28);border-radius:1.4cqh;display:flex;flex-direction:column;justify-content:space-between;padding:1.6cqh 1.2cqw;min-width:0;position:relative;overflow:hidden;background:rgba(255,253,248,.55)}
+  .slot .n{font-family:var(--disp);font-size:2.6cqh;color:var(--faint);letter-spacing:.06em}
+  .slot .open{font-family:var(--disp);font-size:4cqh;color:rgba(179,35,27,.22);letter-spacing:.08em}
+  .slot.filled{border:none;background:#fff;box-shadow:inset 0 0 0 4px var(--red)}
+  .slot.filled .n{color:var(--red)}
+  .slot .team{font-family:var(--kdisp);font-size:4.4cqh;color:var(--ink);line-height:1.1}
+  .slot .svc{font-size:1.9cqh;color:var(--red2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slot.new{animation:pop 1.2s ease}
+  @keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.04)}100%{transform:none}}
+  .qhead{display:flex;justify-content:space-between;align-items:baseline}
+  .queue{display:flex;flex-wrap:wrap;gap:1cqh .8cqw;align-content:flex-start;flex:.8;min-height:0;overflow:hidden}
+  .q{display:flex;align-items:center;gap:.7cqw;border-radius:999px;padding:.8cqh 1.1cqw;font-size:2.1cqh;background:var(--paper);border:1px solid var(--line);font-weight:600}
+  .q .no{color:var(--faint);font-weight:900}
+  .q .nm{font-weight:800}
+  .q .dots{display:flex;gap:.25cqw}
+  .q .dots i{width:1cqh;height:1cqh;border-radius:50%;background:rgba(35,20,13,.15)}
+  .q .dots i.on{background:var(--fire)}
+  .q.reviewing{border-color:var(--fire)}
+  .q.fail{opacity:.45;text-decoration:line-through}
+  .q.pass{background:var(--red);color:#fff;border-color:var(--red)}
+  .q.pass .no{color:rgba(255,255,255,.7)}
+  .q.closed{opacity:.35}
+  .ticker{position:absolute;left:0;right:0;bottom:0;height:4.6cqh;display:flex;align-items:center;overflow:hidden;font-size:2cqh;color:var(--cream);background:var(--ink);border-radius:1cqh}
+  .ticker .lbl{position:relative;z-index:2;flex:none;padding:0 1.2cqw;font-weight:900;color:var(--flame);letter-spacing:.14em;height:100%;display:flex;align-items:center;background:var(--red)}
+  .ticker .tw{flex:1;overflow:hidden;min-width:0}
+  .ticker .track{display:inline-block;white-space:nowrap;animation:scroll 60s linear infinite;padding-left:100%}
+  .ticker .track span{margin-right:3cqw}
+  .ticker .track b{color:#fff}
+  @keyframes scroll{to{transform:translateX(-100%)}}
+  #board.withticker{bottom:7.8cqh}
+  /* ---------- flash ---------- */
+  .flash{position:absolute;left:0;right:0;top:9cqh;bottom:13cqh;z-index:50;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:4cqh 6cqw;overflow:hidden;background:var(--cream)}
+  .flash.on{display:flex}
+  .flash>*{position:relative;z-index:2}
+  .flash .bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:.35}
+  .flash .pre{font-size:3cqh;font-weight:900;letter-spacing:.3em;color:var(--red)}
+  .flash .tname{font-family:var(--kdisp);font-size:13cqh;line-height:1.08;margin:1.6cqh 0 .8cqh;color:var(--ink);white-space:nowrap;max-width:90cqw;overflow:hidden;text-overflow:ellipsis}
+  .flash .members{font-size:2.8cqh;color:var(--muted);font-weight:700}
+  .flash .svc{font-size:3cqh;line-height:1.3;margin-top:1.8cqh;max-width:72cqw;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .flash .svc b{color:var(--red)}
+  .flash .tally{margin-top:2.2cqh;font-family:var(--disp);font-size:5.6cqh;display:flex;gap:2cqw;justify-content:center;letter-spacing:.04em}
+  .flash .comments{margin-top:2cqh;display:flex;flex-direction:column;gap:.8cqh;font-size:2.3cqh;color:var(--ink);max-width:70cqw;font-weight:600}
+  .flash .comments div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .flash .stamp{font-family:var(--kdisp);font-size:13cqh;line-height:1}
+  .flash .stamp.rev small{display:block;font-size:4.2cqh;letter-spacing:.3em;color:#FFD27A;margin-bottom:1cqh}
+  .flash.pass{background:radial-gradient(ellipse 60cqw 55cqh at 50% 48%,#FFF3D6 0%,#FFD38A 45%,#FF8A3D 100%)}
+  .flash.pass .stamp{color:var(--red);animation:rise .8s cubic-bezier(.2,1.4,.4,1)}
+  .flash.fail{background:var(--cream)}
+  .flash.fail .stamp{color:var(--red);border:1.4cqh solid var(--red);padding:.4cqh 3cqw;border-radius:2cqh;transform:rotate(-8deg);animation:stamp .5s cubic-bezier(.3,1.6,.5,1);mix-blend-mode:multiply}
+  .flash.fail .tname{color:rgba(35,20,13,.75)}
+  .flash .rem{margin-top:2.2cqh;font-size:2.8cqh;color:var(--red);font-weight:900;letter-spacing:.06em}
+  @keyframes rise{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+  @keyframes stamp{from{transform:rotate(-8deg) scale(2.4);opacity:0}to{transform:rotate(-8deg);opacity:1}}
+  .suspense .pre{animation:blink 1s infinite}
+  /* ---------- other scenes ---------- */
+  .center{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .qrbox{display:flex;align-items:center;gap:1.4cqw;margin-top:2cqh}
+  .qrbox img{height:13cqh;background:#fff;padding:.8cqh;border-radius:1cqh}
+  .topics{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8cqh 1.4cqw;width:100%;height:100%}
+  .tc{border-radius:1.4cqh;padding:2.4cqh 1.6cqw;display:flex;flex-direction:column;justify-content:space-between;background:#fff;box-shadow:inset 0 0 0 2px rgba(35,20,13,.08);perspective:800px}
+  .tc .logo{height:4cqh;align-self:flex-start}
+  .tc .t{font-family:var(--kdisp);font-size:3.5cqh;line-height:1.25;color:var(--ink)}
+  .tc.hidden{background:var(--red);box-shadow:none}
+  .tc.hidden *{visibility:hidden}
+  .tc.flip{animation:flip .7s ease}
+  @keyframes flip{from{transform:rotateY(90deg)}to{transform:none}}
+  .tc.wild{background:#fff;box-shadow:inset 0 0 0 4px var(--red)}
+  .tc .wl{font-family:var(--disp);font-size:3.4cqh;letter-spacing:.08em;color:var(--red)}
+  .mswrap{display:flex;flex-direction:column;gap:1.3cqh;width:100%;height:100%}
+  .cmstats.ms .n{font-size:6cqh}
+  .msrows{display:flex;flex-direction:column;flex:1;min-height:0;justify-content:space-between}
+  .msrow{display:grid;grid-template-columns:5cqw 11cqw 30% 1fr;align-items:center;gap:1.4cqw;padding:.5cqh 0;border-bottom:1px solid var(--line)}
+  .msrow:last-child{border-bottom:0}
+  .msrow .mn{font-family:var(--disp);font-size:4.6cqh;line-height:1;color:var(--fire);text-align:right}
+  .msrow.none .mn{color:var(--muted)}
+  .msrow .mlogo{display:flex;align-items:center}
+  .msrow .wl{font-weight:900;font-size:1.8cqh;letter-spacing:.06em;color:#FF7A4D}
+  .msrow .mt{font-size:2.05cqh;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .msrow .mteams{font-size:1.85cqh;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mteams i,.mslegend i{font-style:normal;white-space:nowrap}
+  .mteams i+i::before{content:'·';color:var(--muted);opacity:.6;margin:0 .55em}
+  .mteams i.s-d,.mslegend i.s-d{color:var(--muted)}
+  .mteams i.s-r,.mslegend i.s-r{color:#F6E6DA;font-weight:700}
+  .mteams i.s-p,.mslegend i.s-p{color:#FF7A4D;font-weight:800}
+  .mteams i.s-o,.mslegend i.s-o{color:var(--muted);opacity:.4;text-decoration:line-through}
+  .cmstats>div.mslegend{margin-left:auto;display:flex;flex-direction:row;align-items:center;gap:1.6cqw;font-size:1.9cqh;align-self:flex-end;padding-bottom:.6cqh}
+  .mslegend i::before{content:'';display:inline-block;width:1.1cqh;height:1.1cqh;border-radius:50%;background:currentColor;margin-right:.5em;vertical-align:middle;text-decoration:none}
+  .subban{position:absolute;left:3cqw;right:3cqw;bottom:15cqh;z-index:40;display:flex;align-items:center;gap:2cqw;padding:2.2cqh 2.4cqw;border-radius:1.6cqh;
+    background:linear-gradient(90deg,#2A140C,#1A0E0A);box-shadow:inset 0 0 0 .3cqh #FF7A4D,0 2cqh 6cqh rgba(0,0,0,.6);color:#F6E6DA;
+    transform:translateY(40cqh);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.2,1),opacity .4s}
+  .subban.on{transform:none;opacity:1}
+  .subban .k{font-weight:900;letter-spacing:.14em;font-size:2cqh;color:#FF7A4D}
+  .subban b{font-family:var(--disp);font-size:6cqh;line-height:1;color:#FF7A4D}
+  .subban .bcol{display:flex;flex-direction:column;gap:.9cqh;min-width:0;flex:1}
+  .subban .l1{display:flex;align-items:baseline;gap:1.4cqw;min-width:0}
+  .subban .tn{font-size:4.4cqh;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36cqw;flex:none}
+  .subban .sv{font-size:2.6cqh;color:#C9BFB2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+  .subban .l2{display:flex;align-items:center;gap:.9cqw;min-width:0;font-size:2.3cqh;color:#FFB08F;font-weight:700}
+  .subban .l2 .ml{font-size:1.6cqh;font-weight:900;letter-spacing:.14em;color:#FF7A4D;flex:none}
+  .subban .l2 img{flex:none} .subban .l2 .mt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .cmwrap{display:flex;flex-direction:column;gap:2.4cqh;width:100%;height:100%}
+  .cmstats{display:flex;gap:3cqw;align-items:flex-end}
+  .cmstats>div{display:flex;flex-direction:column}
+  .cmstats .n{font-family:var(--disp);font-size:11cqh;line-height:1;color:var(--fire)}
+  .cmstats .l{font-size:2.2cqh;color:var(--muted);margin-top:.6cqh} .cmstats .l i{font-style:normal;opacity:.7}
+  .cmcols{display:flex;gap:2.4cqw;flex:1;min-height:0}
+  .cmleft{flex:1.25;display:flex;flex-direction:column;gap:1.1cqh;overflow:hidden}
+  .cmright{flex:1;display:flex;flex-direction:column;gap:1.4cqh;overflow:hidden;border-left:1px solid var(--line);padding-left:2cqw}
+  .cmrow{display:grid;grid-template-columns:22% 1fr 7%;align-items:center;gap:1cqw;font-size:2.3cqh}
+  .cmrow b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cmrow span{text-align:right;font-weight:700}
+  .cmrow .cbar{height:1.8cqh;background:rgba(255,255,255,.07);border-radius:1cqh;overflow:hidden}
+  .cmrow .bar{height:100%;transition:width .8s ease}
+  .cmrow.hot .bar{background:#FFB08F;box-shadow:0 0 1.4cqh #FF7A4D}
+  .cmright .feed div{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  table.cm{width:100%;border-collapse:collapse;font-size:2.1cqh}
+  table.cm td{padding:.7cqh .6cqw;border-bottom:1px solid var(--line)}
+  .bar{height:1.4cqh;background:var(--fire);border-radius:1cqh}
+  .feed{display:flex;flex-direction:column;gap:1cqh;font-size:2.1cqh;overflow:hidden}
+  .feed div{border-left:4px solid var(--fire);padding-left:.8cqw}
+  .demo-wrap{gap:3cqw;width:100%}
+  .lineup{flex:0 0 26%;display:flex;flex-direction:column;gap:1cqh;border-right:2px dashed rgba(179,35,27,.25);padding-right:2cqw;justify-content:center}
+  .lineup div{font-size:2.5cqh;padding:1cqh 1cqw;border-radius:1cqh;color:var(--muted);font-weight:700}
+  .lineup div.cur{background:var(--red);color:#fff}
+  .lineup div.done{opacity:.45}
+  .lineup div{display:flex;align-items:center;gap:.8cqw}
+  .lineup .lv{margin-left:auto;max-width:8cqw;object-fit:contain}
+  .offer{margin-top:1.4cqh;padding:2cqh 2cqw;border-radius:1.6cqh;border:2px solid var(--fire);background:rgba(255,122,77,.08);display:flex;flex-direction:column;gap:1.4cqh}
+  .offer .oq{font-size:3cqh;font-weight:800;color:var(--ink)}
+  .offer .cnt{font-family:var(--disp);font-size:9cqh;line-height:1;color:var(--fire)}
+  .offer .cnt small{font-family:'Pretendard Variable',sans-serif;font-size:2.6cqh;margin-left:1cqw;color:var(--muted);font-weight:700}
+  .offer .hands{display:flex;gap:3cqw;align-items:center;flex-wrap:wrap}
+  .offer .hands img,.offer.done img{animation:rise .6s ease}
+  .offer.done{flex-direction:row;align-items:center;gap:2cqw;border-color:var(--gold);background:rgba(255,196,107,.1)}
+  .offer.done .ok{font-family:var(--kdisp);font-size:5cqh;color:var(--gold)}
+  .timer{font-family:var(--disp);font-size:20cqh;line-height:1;color:var(--ink)}
+  .timer.warn{color:var(--gold)}.timer.over{color:var(--red)}
+  /* shark tank stage: the finalist's own PDF or live demo fills the LED, a slim bar keeps team + timer in view */
+  body.stagefull #stage{grid-template-rows:minmax(0,1fr) 13cqh}
+  body.stagefull .hdr{display:none}
+  body.stagefull main{padding:0}
+  body.stagefull #demo{inset:0}
+  body.stagefull::after{opacity:0}
+  .stg{display:flex;flex-direction:column;width:100%;height:100%;background:#0A0706}
+  .sbar{flex:0 0 8.5cqh;display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:0 2.4cqw;border-bottom:1px solid rgba(246,230,218,.12);min-width:0}
+  .sbar .sl{display:flex;align-items:baseline;gap:1.4cqw;min-width:0;overflow:hidden;white-space:nowrap}
+  .sbar .k{flex:0 0 auto;font-size:1.9cqh;font-weight:900;letter-spacing:.18em;color:var(--red)}
+  .sbar b{flex:0 1 auto;font-family:var(--kdisp);font-size:4.2cqh;font-weight:400;color:#F6E6DA;overflow:hidden;text-overflow:ellipsis}
+  .sbar .sv{flex:0 1 auto;font-size:2.4cqh;color:rgba(246,230,218,.62);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+  .sbar .sr{display:flex;align-items:baseline;gap:1cqw;flex:0 0 auto}
+  .sbar .ph{font-size:2.2cqh;font-weight:800;color:rgba(246,230,218,.62)}
+  .sbar .tm{font-family:var(--disp);font-size:6cqh;line-height:1;color:#F6E6DA}
+  .sbar .tm.warn{color:var(--gold)}.sbar .tm.over{color:var(--red)}
+  .sbody{flex:1;position:relative;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .sbody canvas{display:block;border-radius:.4cqh}
+  .sbody iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+  .sbody .spgn{position:absolute;right:1.6cqw;bottom:1.2cqh;font-size:1.9cqh;font-weight:800;color:rgba(246,230,218,.7);background:rgba(10,7,6,.7);padding:.4cqh .8cqw;border-radius:.8cqh}
+  .sbody .msg{font-size:3cqh;color:rgba(246,230,218,.62);text-align:center;line-height:1.6}
+  .match{display:flex;flex-direction:column;gap:1cqh;width:100%;justify-content:center}
+  .mrow{display:flex;align-items:center;gap:2cqw;border-radius:1.4cqh;padding:1cqh 1.6cqw;min-height:6.8cqh;background:var(--paper);border:1px solid var(--line)}
+  .mrow .nm{flex:0 0 30%;font-family:var(--kdisp);font-size:3.4cqh}
+  .mrow .vcs{flex:1;min-width:0;display:grid;grid-template-columns:repeat(6,1fr);gap:1.2cqw;align-items:center}
+  .mrow .vcs img{max-width:100%;object-fit:contain;object-position:left center;justify-self:start;animation:rise .6s ease}
+  .mrow .vcs .muted{grid-column:1 / -1}
+  .mrow .res{flex:none;min-width:9cqw;text-align:right;font-size:2.6cqh;font-weight:900}
+  .mrow.hit{background:#fff;box-shadow:inset 0 0 0 3px var(--red)}
+  .mrow.miss{opacity:.45}
+  .mrow.multi{box-shadow:inset 0 0 0 3px var(--fire)}
+  /* finale: matched teams as big cards, the rest as a quiet list, credits for all eight */
+  .fin{display:flex;flex-direction:column;width:100%;height:100%;gap:2.4cqh}
+  .fin .ft{display:flex;align-items:baseline;gap:2cqw}
+  .fin .ft .k{font-size:2.2cqh;font-weight:900;letter-spacing:.2em;color:var(--red)}
+  .fin .ft h1{font-family:var(--kdisp);font-weight:400;font-size:7cqh;line-height:1;margin:0;color:var(--ink)}
+  .fin .ft h1 b{color:var(--fire);font-weight:400}
+  .fin .fb{flex:1;display:flex;gap:2.4cqw;min-height:0}
+  .fin .pairs{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:1.6cqh 1.4cqw;align-content:start;min-width:0}
+  .fin .pc{display:flex;align-items:center;gap:1.6cqw;padding:1.8cqh 1.6cqw;border-radius:1.6cqh;border:2px solid var(--fire);background:rgba(255,122,77,.1);min-width:0;animation:rise .6s ease both}
+  .fin .pc .lg{flex:0 0 11cqw;display:flex;align-items:center;justify-content:center}
+  .fin .pc .lg img{max-width:11cqw;max-height:6cqh;object-fit:contain}
+  .fin .pc .tx{min-width:0}
+  .fin .pc .tn{font-family:var(--kdisp);font-size:3.8cqh;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .fin .pc .sv{font-size:2cqh;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.4cqh}
+  .fin .side{flex:0 0 26%;display:flex;flex-direction:column;gap:1.4cqh;border-left:2px dashed rgba(246,230,218,.15);padding-left:2cqw;min-width:0}
+  .fin .side .sh{font-size:2.2cqh;font-weight:900;letter-spacing:.12em;color:var(--muted)}
+  .fin .side .sl div{font-size:2.8cqh;font-weight:700;color:var(--ink);padding:.6cqh 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fin .side .cr{margin-top:auto;padding:2cqh 1.4cqw;border-radius:1.4cqh;background:rgba(255,196,107,.1);border:1px solid rgba(255,196,107,.4)}
+  .fin .side .cr b{display:block;font-family:var(--disp);font-size:6cqh;line-height:1;color:var(--gold)}
+  .fin .side .cr span{font-size:2.2cqh;color:var(--ink);font-weight:700;line-height:1.5}
+  #standby{align-items:center;justify-content:center}
+  #standby .vid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .8s}
+  #standby video{width:100%;height:100%;object-fit:contain;border-radius:1.4cqh}
+  #standby .info{position:absolute;inset:0;display:flex;gap:4cqw;align-items:center;transition:opacity .8s}
+  #standby .poster{height:64cqh;border-radius:1.6cqh;transform:rotate(-2deg);box-shadow:0 2cqh 4cqh rgba(35,20,13,.18)}
+  #standby .corner{position:absolute;right:0;bottom:0;text-align:right;font-size:2.6cqh;color:var(--ink);font-weight:800;z-index:3}
+  #standby .corner b{color:var(--red);font-family:var(--disp);font-size:4cqh;font-weight:400}
+  .hide{opacity:0;pointer-events:none}
+  /* ---------- opening slides ---------- */
+  .slide{flex-direction:column;justify-content:center;width:100%;position:relative}
+  .sl{width:100%}
+  .kw{font-family:var(--kdisp);color:var(--red);line-height:1.05}
+  .kwe{font-family:var(--disp);color:var(--red);line-height:.9;text-transform:uppercase}
+  .tags{display:flex;gap:1.4cqw;flex-wrap:wrap}
+  .tagp{background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:1.2cqh 1.6cqw;font-size:2.8cqh;font-weight:800}
+  .tagp b{color:var(--red);margin-right:.6cqw}
+  .still{position:absolute;inset:-2.4cqh -3cqw;background-size:cover;background-position:center;z-index:0}
+  .still::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(234,245,252,.94) 0%,rgba(234,245,252,.6) 45%,rgba(234,245,252,0) 78%)}
+  .onstill{position:relative;z-index:2}
+  .photo{border:1.2cqh solid var(--paper);border-bottom-width:4cqh;box-shadow:0 1.6cqh 3cqh rgba(35,20,13,.22);background-size:cover;background-position:center}
+  .sl-nums{display:flex;align-items:flex-end;gap:2.4cqw}
+  .sl-nums div{display:flex;flex-direction:column;gap:1cqh}
+  .sl-nums b{font-family:var(--disp);font-size:20cqh;line-height:.85;color:var(--ink);font-weight:400}
+  .sl-nums .hot b{color:var(--red)}
+  .sl-nums span{font-size:2.6cqh;font-weight:800;color:var(--muted);letter-spacing:.06em}
+  .sl-nums i{font-style:normal;font-family:var(--disp);font-size:8cqh;color:var(--faint);padding-bottom:4cqh}
+  .sl-logos{display:flex;flex-direction:column;gap:2.4cqh;width:100%}
+  .sl-logos>div{display:flex;align-items:center;gap:3cqw;padding:2.2cqh 2cqw}
+  .sl-logos .lab{flex:0 0 17cqw;font-size:2cqh;font-weight:900;letter-spacing:.16em;color:var(--red)}
+  .sl-logos .row{flex:1;display:flex;align-items:center;gap:3cqw;flex-wrap:wrap}
+  .sl-judges{display:grid;grid-template-columns:repeat(3,1fr);gap:2cqh 1.6cqw;width:100%}
+  .sl-judges div{display:flex;flex-direction:column;gap:1cqh;padding:2.6cqh 1.8cqw}
+  .sl-judges img{align-self:flex-start;margin-bottom:1cqh}
+  .sl-judges b{font-family:var(--kdisp);font-size:4.4cqh;font-weight:400}
+  .sl-judges span{font-size:2.2cqh;color:var(--muted);font-weight:700}
+  .sl-tt{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:1.4cqh 4cqw;width:100%}
+  .sl-tt div{display:flex;gap:2cqw;align-items:baseline;border-bottom:2px dashed rgba(179,35,27,.22);padding-bottom:1.2cqh}
+  .sl-tt b{font-family:var(--disp);font-weight:400;font-size:5cqh;color:var(--red);flex:0 0 12cqh}
+  .sl-tt span{font-size:3cqh;font-weight:800}
+
+  /* editorial stats */
+  .st-row{display:flex;align-items:stretch;width:100%}
+  .st{flex:1;padding:0 2.6cqw;border-left:2px solid rgba(35,20,13,.14)}
+  .st:first-child{padding-left:0;border-left:none}
+  .st-l{font-size:2cqh;font-weight:900;letter-spacing:.18em;color:var(--red);margin-bottom:1.4cqh}
+  .st-v{font-family:var(--disp);font-size:15cqh;line-height:.9;color:var(--ink);white-space:nowrap}
+  .st-v.hot{color:var(--red)}
+  .st-u{font-family:'Pretendard Variable','Pretendard',sans-serif;font-weight:800;font-size:4cqh;margin-left:.5cqw;letter-spacing:0}
+  .st-n{font-size:2.3cqh;color:var(--muted);font-weight:600;margin-top:1.4cqh;line-height:1.5}
+  .st-col{display:flex;flex-direction:column;gap:3.4cqh}
+  .st-col .st{padding:0;border:none}
+  .st-col .st-v{font-size:9.6cqh}
+  .dotm{display:grid;grid-template-columns:repeat(100,1fr);gap:.45cqh;width:100%}
+  .dotm i{aspect-ratio:1;border-radius:50%;background:rgba(35,20,13,.13)}
+  .dotm i.on{background:var(--red);animation:dotin .6s ease both}
+  @keyframes dotin{from{transform:scale(0)}to{transform:none}}
+  .ed{display:flex;flex-direction:column;width:100%}
+  .ed>div{display:flex;align-items:baseline;gap:2.6cqw;padding:2.1cqh 0;border-top:2px solid rgba(35,20,13,.12)}
+  .ed>div:last-child{border-bottom:2px solid rgba(35,20,13,.12)}
+  .ed b{font-family:var(--disp);font-weight:400;font-size:4.6cqh;color:var(--red);flex:0 0 14cqh;letter-spacing:.02em}
+  .ed strong{font-family:var(--kdisp);font-weight:400;font-size:4.6cqh;color:var(--ink)}
+  .ed span{margin-left:auto;font-size:2.4cqh;color:var(--muted);font-weight:600;text-align:right}
+  .pg{position:absolute;inset:0;display:flex;flex-direction:column}
+  .pg-t{font-family:var(--kdisp);font-weight:400;font-size:8.4cqh;line-height:1.12;color:var(--ink);margin-top:3cqh;min-height:14cqh}
+  .pg-t em{font-style:normal;color:var(--red)}
+  .pg-b{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:4cqh}
+  .line{font-size:4.6cqh;font-weight:700;color:var(--ink);line-height:1.45}
+  .line.m{color:var(--muted);font-weight:600}
+  .hero{font-family:var(--disp);font-weight:400;color:var(--red);line-height:.86}
+  .sl-five{display:grid;grid-template-columns:repeat(5,1fr);gap:1.2cqw;width:100%}
+  .sl-five div{padding:2.6cqh 1.4cqw;display:flex;flex-direction:column;gap:1.2cqh}
+  .sl-five b{font-family:var(--kdisp);font-weight:400;font-size:5.4cqh;color:var(--red);line-height:1.1}
+  .sl-five span{font-size:2.2cqh;color:var(--ink);font-weight:600;line-height:1.5}
+  .sl-five i{font-style:normal;font-family:var(--disp);font-size:3cqh;color:var(--faint)}
+
+  /* ===== opening deck: drawn visuals, Pretendard, ivory and night ===== */
+  @font-face{font-family:'PretendardV';src:url(/assets/fonts/PretendardVariable.woff2) format('woff2-variations'),url(/assets/fonts/PretendardVariable.woff2) format('woff2');font-weight:45 920;font-display:block}
+  :root{--ivory:#F7F3EB; --night:#0A0403; --ink2:#17110F; --cream2:#F6E6DA; --pink2:#D97757; --pinkd:#EE9A78; --maroon:#5A1A16; --stone:#857B72; --dotc:#E6DFD3}
+  body.deck #stage{grid-template-rows:1fr 13cqh}
+  body.deck .hdr{display:none}
+  body.deck main{padding:0}
+  body.deck #slide{inset:0}
+  body.deck::after{opacity:0}
+  .d{position:absolute;inset:0;overflow:hidden;font-family:'PretendardV','Pretendard Variable',sans-serif;color:var(--ink2);background:var(--ivory);word-break:keep-all;animation:dIn .6s ease}
+  @keyframes dIn{from{opacity:0}to{opacity:1}}
+  .d.dark{background:var(--night);color:var(--cream2)}
+  .d .full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .d .vis{position:absolute;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
+  .d .t{position:absolute;z-index:2}
+  .d .tl{left:5.2cqw;top:7.5cqh;right:14cqw}
+  .d .mark{position:absolute;right:3.4cqw;top:4.6cqh;z-index:3;font-weight:900;font-size:2.3cqh;letter-spacing:-.01em;text-transform:uppercase;color:var(--ink2)}
+  .d.dark .mark{color:var(--cream2)}
+  .wm{font-weight:900;text-transform:uppercase;letter-spacing:-.012em;line-height:.94}
+  .wm em{font-style:normal;color:var(--pink2)}
+  .d.dark .wm{color:var(--cream2);text-shadow:0 .035em 0 var(--maroon),0 0 .5em rgba(217,119,87,.26)}
+  .dh{font-weight:820;font-size:8.2cqh;letter-spacing:-.035em;line-height:1.2}
+  .dh em,.ds em,.dl em{font-style:normal;color:var(--pink2)}
+  .d.dark .dh em,.d.dark .ds em{color:var(--pinkd)}
+  .ds{font-weight:500;font-size:3.6cqh;line-height:1.45;letter-spacing:-.012em;color:var(--stone)}
+  .d.dark .ds{color:rgba(246,230,218,.72)}
+  .dl{font-weight:700;font-size:3.4cqh;letter-spacing:-.01em}
+  .dk{font-weight:700;font-size:2.6cqh;letter-spacing:.04em;color:var(--pink2)}
+  .hero2{font-weight:900;letter-spacing:-.05em;line-height:.9;color:var(--pink2)}
+  /* dot field: everyone who applied, the selected as glossy pink spheres */
+  .fld{display:grid;grid-template-columns:repeat(50,1.6cqh);gap:.5cqh}
+  .fld i{width:1.6cqh;height:1.6cqh;border-radius:50%;background:var(--dotc)}
+  .fld i.on{background:radial-gradient(circle at 34% 30%,#FBE1D4 0,#EC9A79 34%,#D97757 76%,#B95A3C 100%);animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+  @keyframes pop{from{transform:scale(0)}to{transform:none}}
+  /* how it works: four stations, each with a drawn pictogram */
+  .flow{display:flex;align-items:flex-start;gap:0}
+  .flow .fs{flex:1;display:flex;flex-direction:column;gap:2cqh;min-width:0}
+  .flow .pic{height:24cqh;display:flex;align-items:flex-end}
+  .flow .ar{flex:0 0 4cqw;height:24cqh;display:flex;align-items:center;justify-content:center;color:#C9BFB2;font-size:5cqh;font-weight:300}
+  .flow b{font-weight:800;font-size:4.4cqh;letter-spacing:-.03em;line-height:1.25}
+  .flow span{font-weight:500;font-size:3cqh;line-height:1.45;color:var(--stone)}
+  .gh{display:grid;grid-template-columns:repeat(9,2.6cqh);gap:.7cqh}
+  .gh i{width:2.6cqh;height:2.6cqh;border-radius:.6cqh;background:var(--dotc)}
+  .gh i.a{background:#F2CDBE}.gh i.b{background:#E69B7E}.gh i.c{background:var(--pink2)}
+  .doc{width:17cqh;height:22cqh;background:#fff;border-radius:1.6cqh;box-shadow:0 1.6cqh 3.4cqh rgba(60,40,30,.12);padding:2.6cqh 2.2cqh;display:flex;flex-direction:column;gap:1.3cqh;position:relative}
+  .doc i{height:1.1cqh;border-radius:1cqh;background:var(--dotc)} .doc i:first-child{width:60%;background:var(--ink2);height:1.5cqh}
+  .doc .one{position:absolute;right:-2.2cqh;top:-2.2cqh;width:7cqh;height:7cqh;border-radius:50%;background:var(--pink2);color:#fff;font-weight:900;font-size:4cqh;display:flex;align-items:center;justify-content:center}
+  .votes{display:grid;grid-template-columns:repeat(3,7.4cqh);gap:1.6cqh}
+  .votes i{width:7.4cqh;height:7.4cqh;border-radius:50%;background:var(--dotc);display:flex;align-items:center;justify-content:center;font-style:normal;color:#fff;font-weight:900;font-size:3.6cqh}
+  .votes i.y{background:var(--pink2)}
+  .seats{display:grid;grid-template-columns:repeat(4,6.2cqh);gap:1.6cqh}
+  .seats i{width:6.2cqh;height:7.4cqh;border-radius:2.4cqh 2.4cqh 1cqh 1cqh;background:var(--dotc)}
+  .seats i.y{background:var(--pink2)}
+  /* day line: six evenly spaced stops, the build stretch as a pink band */
+  .day{height:30cqh}
+  .day .ln{position:absolute;left:0;right:0;top:0;height:.5cqh;background:#DCD3C5;border-radius:1cqh}
+  .day .bd{position:absolute;top:-1.5cqh;height:3.5cqh;border-radius:2cqh;background:var(--pink2)}
+  .day .bd span{position:absolute;left:0;right:0;bottom:4.6cqh;text-align:center;font-weight:750;font-size:3.2cqh;color:var(--pink2);white-space:nowrap}
+  .day .ev{position:absolute;top:5cqh;display:flex;flex-direction:column;gap:.8cqh;max-width:15cqw}
+  .day .ev::before{content:'';position:absolute;left:0;top:-7cqh;width:2.6cqh;height:2.6cqh;border-radius:50%;background:var(--ink2);box-shadow:0 0 0 .7cqh var(--ivory)}
+  .day .ev b{font-weight:800;font-size:4.8cqh;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .day .ev strong{font-weight:750;font-size:3.5cqh;letter-spacing:-.02em}
+  .day .ev span{font-weight:500;font-size:2.8cqh;color:var(--stone)}
+  .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,4,3,.9) 0%,rgba(10,4,3,.62) 42%,rgba(10,4,3,.08) 78%)}
+  .d.dark .dl em{color:var(--pinkd)}
+  body.deck main{background:var(--ivory)}
+  /* drawn visuals for the generic deck: cover mark, wildcard card, vote card, shark tank pictograms, submit card, build grid */
+  .d .art{position:absolute;right:7cqw;top:50%;transform:translateY(-50%);width:60cqh;height:60cqh;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 45%,#FBE1D4 0%,#F6CDB9 40%,rgba(246,205,185,0) 71%)}
+  .d .art img{width:58%;filter:drop-shadow(0 2.4cqh 3cqh rgba(185,90,60,.25))}
+  .d .wildc{position:absolute;right:7cqw;top:20cqh;width:34cqw;padding:4.4cqh 2.6cqw;border-radius:2.4cqh;background:#fff;box-shadow:inset 0 0 0 .6cqh var(--pink2),0 2.4cqh 5cqh rgba(60,40,30,.1);transform:rotate(2.5deg);display:flex;flex-direction:column;gap:2.4cqh}
+  .d .wildc span{font-weight:900;font-size:3.4cqh;letter-spacing:.06em;color:var(--pink2)}
+  .d .wildc b{font-weight:820;font-size:5.4cqh;line-height:1.25;letter-spacing:-.03em}
+  .d .vcard{position:absolute;right:5cqw;top:13cqh;width:40cqw;padding:4cqh 2.6cqw;border-radius:2.4cqh;background:#fff;box-shadow:0 2.4cqh 5cqh rgba(60,40,30,.1);display:flex;flex-direction:column;gap:2.6cqh}
+  .d .vcard .vq{font-weight:820;font-size:4.6cqh;line-height:1.3;letter-spacing:-.03em}
+  .d .vcard .vb{display:flex;gap:1cqw} .d .vcard .vb span{flex:1;padding:2.2cqh 1cqw;border-radius:1.4cqh;text-align:center;font-weight:850;font-size:2.8cqh;color:#fff}
+  .d .vcard .vb .p{background:#1F9D55;box-shadow:0 0 0 .5cqh rgba(31,157,85,.25)} .d .vcard .vb .f{background:#C8372A;opacity:.55}
+  .d .vcard .vt{padding:2cqh 1.4cqw;border-radius:1.4cqh;border:2px solid rgba(23,17,15,.1);font-weight:600;font-size:2.7cqh;line-height:1.45}
+  .d .vcard .vt i{display:block;font-style:normal;font-weight:800;font-size:2cqh;color:var(--stone);margin-bottom:.6cqh}
+  .d .vcard .vd{display:flex;align-items:center;gap:.8cqw} .d .vcard .vd i{width:3cqh;height:3cqh;border-radius:50%;background:var(--dotc)} .d .vcard .vd i.p{background:#1F9D55}
+  .d .vcard .vd span{margin-left:.8cqw;font-weight:800;font-size:2.6cqh;color:var(--stone)}
+  .flow .seats{flex:none;display:grid;grid-template-columns:repeat(4,6.2cqh);grid-template-rows:none;gap:1.6cqh}
+  .d .tk{width:21cqh;height:21cqh;border-radius:50%;border:1.3cqh solid var(--pink2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:5.4cqh;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .d .hands{display:flex;gap:1.3cqh;align-items:flex-end;height:20cqh}
+  .d .hands i{width:5.6cqh;height:10cqh;border-radius:2.8cqh 2.8cqh 1cqh 1cqh;background:var(--dotc)} .d .hands i.y{height:19cqh;background:var(--pink2)}
+  .d .pick{display:flex;flex-direction:column;gap:1.6cqh}
+  .d .pick i{display:flex;align-items:center;width:26cqh;height:6cqh;padding-left:2.2cqh;border-radius:3cqh;background:var(--dotc);font-style:normal;font-weight:850;font-size:2.6cqh;color:#fff}
+  .d .pick i.y{background:var(--pink2)}
+  .d .ucard{position:absolute;right:5cqw;top:12cqh;width:38cqw;padding:4cqh 2.6cqw;border-radius:2.4cqh;background:#fff;box-shadow:0 2.4cqh 5cqh rgba(60,40,30,.1);display:flex;flex-direction:column;gap:2.4cqh}
+  .d .ucard img{width:24cqh;height:24cqh;object-fit:contain;border-radius:1.4cqh}
+  .d .ucard .dl{font-size:4.2cqh;color:var(--pink2);overflow-wrap:anywhere} .d .ucard .ds{font-size:3cqh}
+  .d .ghx{position:absolute;right:4cqw;top:14cqh;display:grid;grid-template-columns:repeat(22,3cqh);gap:.9cqh;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 45%);mask-image:linear-gradient(90deg,transparent 0,#000 45%)}
+  .d .ghx i{width:3cqh;height:3cqh;border-radius:.7cqh;background:rgba(246,230,218,.07)}
+  .d .ghx i.a{background:rgba(217,119,87,.32)} .d .ghx i.b{background:rgba(217,119,87,.62)} .d .ghx i.c{background:#E98A68;box-shadow:0 0 1.4cqh rgba(233,138,104,.5)}
+  body.deck .tc{font-family:'PretendardV','Pretendard Variable',sans-serif;border-radius:2cqh;background:#fff;box-shadow:0 .8cqh 2.6cqh rgba(60,40,30,.07);padding:3cqh 2cqw}
+  body.deck .tc .t{font-family:inherit;font-weight:800;font-size:3.7cqh;letter-spacing:-.025em;line-height:1.3;color:var(--ink2)}
+  body.deck .tc.hidden{background:var(--ink2);box-shadow:none}
+  body.deck .tc.wild{box-shadow:inset 0 0 0 .5cqh var(--pink2)}
+  body.deck .tc .wl{font-family:inherit;font-weight:900;font-size:3.2cqh;letter-spacing:.02em;color:var(--pink2)}
+  .judges2{display:grid;grid-template-columns:repeat(3,1fr);gap:7cqh 4cqw;width:100%}
+  .judges2 div{display:flex;flex-direction:column;gap:1.2cqh}
+  .judges2 img{align-self:flex-start;margin-bottom:1.4cqh}
+  .judges2 b{font-weight:800;font-size:4.2cqh;letter-spacing:-.02em}
+  .judges2 span{font-weight:500;font-size:2.6cqh;color:var(--stone)}
+  /* ruled list, clock legend, partner categories, fireside pair */
+  .rl{display:flex;flex-direction:column}
+  .rl>div{display:flex;align-items:baseline;gap:2.4cqw;padding:2.5cqh 0;border-top:2px solid rgba(23,17,15,.1)}
+  .rl>div:last-child{border-bottom:2px solid rgba(23,17,15,.1)}
+  .rl b{flex:0 0 4cqw;font-weight:850;font-size:4cqh;color:var(--pink2);font-variant-numeric:tabular-nums}
+  .rl span{font-weight:650;font-size:3.9cqh;letter-spacing:-.02em;line-height:1.35}
+  .lg>div{display:grid;grid-template-columns:3.4cqh 14cqh 1fr;align-items:baseline;gap:1.2cqw;padding:1.9cqh 0;border-top:2px solid rgba(23,17,15,.08)}
+  .lg i{width:2.6cqh;height:2.6cqh;border-radius:50%;align-self:center}
+  .lg b{font-weight:800;font-size:3.6cqh;font-variant-numeric:tabular-nums}
+  .lg strong{font-weight:750;font-size:3.6cqh;letter-spacing:-.02em}
+  .lg span{display:block;font-weight:500;font-size:2.6cqh;color:var(--stone);margin-top:.4cqh}
+  .cat>div{display:flex;align-items:center;gap:3cqw;padding:1.9cqh 0;border-top:2px solid rgba(23,17,15,.08)}
+  .cat label{flex:0 0 10cqw;font-weight:750;font-size:3.2cqh;color:var(--pink2)}
+  .cat .lo{display:flex;align-items:center;gap:4cqw;flex-wrap:wrap}
+  .pair{display:flex;gap:7cqw}
+  .pair>div{display:flex;flex-direction:column;gap:1.2cqh}
+  .pair .lg2{height:14cqh;display:flex;align-items:flex-end;margin-bottom:1.6cqh}
+  .pair b{font-weight:850;font-size:11cqh;letter-spacing:-.03em;line-height:1.05}
+  .pair span{font-weight:600;font-size:3.4cqh;color:rgba(246,230,218,.75)}
+  body.deck .topics{position:absolute;inset:3.5cqh 3cqw;width:auto;height:auto}
+  /* ===== LED theme v2 (matches the opening deck): ivory, ink, warm orange, Pretendard Black/ExtraBold ===== */
+  @font-face{font-family:'PretendardBlack';src:url(/assets/fonts/Pretendard-Black.woff2) format('woff2');font-weight:100 900;font-display:block}
+  @font-face{font-family:'PretendardXB';src:url(/assets/fonts/Pretendard-ExtraBold.woff2) format('woff2');font-weight:100 900;font-display:block}
+  :root{--disp:'PretendardBlack','PretendardV',sans-serif; --kdisp:'PretendardXB','PretendardV',sans-serif;
+    --ink:#17110F; --muted:#857B72; --faint:#B5AA9E; --line:rgba(23,17,15,.12);
+    --red:#D97757; --red2:#B95A3C; --fire:#D97757; --flame:#F2B38F; --gold:#C98A2B;
+    --cream:#F7F3EB; --paper:#FFFFFF; --kraft:#857B72; --kraft2:#857B72}
+  body{background:var(--ivory);font-family:'PretendardV','Pretendard Variable',sans-serif}
+  body::after{opacity:0}
+  .disp,.kwe,.big,.timer,.brand .title{letter-spacing:-.015em}
+  .kd,.kw,.h1{letter-spacing:-.03em}
+  .kraftc{background:#fff}
+  #board .left,.lineup{border-right-color:rgba(23,17,15,.12)!important}
+  .flash.pass{background:radial-gradient(ellipse 60cqw 55cqh at 50% 48%,#FFF8F2 0%,#F7D9C8 52%,#E8A283 100%)}
+  .flash .bg{opacity:.14}
+  .flash .rem{color:var(--ink)}
+  /* ===== arena: every live scene is a dark survival stage (the opening deck stays ivory) ===== */
+  body.arena{background:#0A0706;color:#F6E6DA;
+    --ink:#F6E6DA; --muted:rgba(246,230,218,.62); --faint:rgba(246,230,218,.3); --line:rgba(246,230,218,.12);
+    --paper:rgba(255,255,255,.04); --cream:#0A0706; --red:#FF7A4D; --red2:#FFB08E; --fire:#FF7A4D; --gold:#FFC46B}
+  body.arena main::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 55% at 50% -10%,rgba(255,122,77,.16),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 4px)}
+  body.arena .brand .title b{color:#F6E6DA}
+  body.arena .tag{color:#FF7A4D} body.arena .tag .dot{background:#FF3B30;box-shadow:0 0 1.4cqh #FF3B30}
+  body.arena .big{color:#FF7A4D;text-shadow:0 0 7cqh rgba(255,122,77,.45)}
+  body.arena .cd{font-variant-numeric:tabular-nums}
+  body.arena .cd.hot{color:#FFB547} body.arena .cd.crit{color:#FF3B30;animation:blink 1s infinite}
+  body.arena .slot{border:2px solid rgba(246,230,218,.09);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01))}
+  body.arena .slot .open{color:rgba(246,230,218,.13)}
+  body.arena .slot.filled{background:linear-gradient(160deg,rgba(255,122,77,.28),rgba(255,122,77,.06));box-shadow:inset 0 0 0 2px #FF7A4D,0 0 5cqh rgba(255,122,77,.3)}
+  body.arena .slot.filled .team{color:#fff}
+  body.arena .q{background:rgba(255,255,255,.05);border-color:rgba(246,230,218,.12)}
+  body.arena .q .dots i{background:rgba(246,230,218,.18)}
+  body.arena .q.reviewing{border-color:#FF7A4D;box-shadow:0 0 2cqh rgba(255,122,77,.35);animation:beat 1.6s ease-in-out infinite}
+  body.arena .q.pass{background:#FF7A4D;color:#1A0C08;border-color:#FF7A4D}
+  body.arena .q.fail{color:#FF6B6B;opacity:.5}
+  @keyframes beat{0%,100%{transform:none}50%{transform:scale(1.035)}}
+  body.arena .ticker{background:#160F0C;color:rgba(246,230,218,.8)} body.arena .ticker .lbl{background:#FF3B30;color:#fff}
+  body.arena .tc{background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 1px rgba(246,230,218,.12)}
+  body.arena .tc .t{color:#F6E6DA} body.arena .tc.hidden{background:#FF7A4D}
+  body.arena .tc.wild{box-shadow:inset 0 0 0 .4cqh #FF7A4D}
+  body.arena .mrow{background:rgba(255,255,255,.04);border-color:rgba(246,230,218,.12)}
+  body.arena .mrow.hit{background:rgba(255,122,77,.14);box-shadow:inset 0 0 0 2px #FF7A4D}
+  body.arena .lineup div.cur{color:#1A0C08}
+  body.arena .paper,body.arena .kraftc{background:rgba(255,255,255,.05)}
+  body.arena #standby .poster{box-shadow:0 0 8cqh rgba(255,122,77,.25)}
+  /* reveal: spotlight, then a burst or a red stamp */
+  body.arena .flash{background:#0A0706;color:#F6E6DA}
+  body.arena .flash.suspense{background:radial-gradient(ellipse 26cqw 60cqh at 50% 30%,rgba(246,230,218,.13),#0A0706 72%) #0A0706}
+  body.arena .flash.suspense .tname{animation:beat 1s ease-in-out infinite}
+  body.arena .flash .tname{color:#fff}
+  body.arena .flash .bg{display:none}
+  body.arena .flash.pass{background:radial-gradient(ellipse 55cqw 50cqh at 50% 42%,rgba(255,122,77,.5) 0%,rgba(255,122,77,.1) 55%,#0A0706 100%) #0A0706}
+  body.arena .flash.pass .stamp{color:#FF7A4D;text-shadow:0 0 6cqh rgba(255,122,77,.7)}
+  body.arena .flash.fail{background:radial-gradient(ellipse 50cqw 45cqh at 50% 42%,rgba(255,59,48,.16),#0A0706 75%) #0A0706}
+  body.arena .flash.fail .stamp{color:#FF3B30;border-color:#FF3B30;mix-blend-mode:normal;text-shadow:0 0 4cqh rgba(255,59,48,.5)}
+  body.arena .flash.fail .tname{color:rgba(246,230,218,.55)}
+  body.arena .flash .rem{color:#F6E6DA}
+  /* standby card: one column with room to breathe; works on 16:9 LED and 16:10 laptops */
+  #standby .info{gap:5cqw;padding:0 1cqw}
+  #standby .poster{height:min(66cqh,38cqw);transform:none;flex:none}
+  .sb-col{display:flex;flex-direction:column;gap:3cqh;min-width:0;flex:1;padding:4cqh 0}
+  /* standby art when there is no poster: the event mark floating over slow rays */
+  .sb-art{position:relative;flex:none;width:min(62cqh,36cqw);aspect-ratio:1;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 46%,rgba(255,122,77,.3) 0%,rgba(255,122,77,.07) 58%,transparent 72%)}
+  .sb-art .rays{inset:-20%;opacity:.8}
+  .sb-art img{position:relative;z-index:2;width:56%;filter:drop-shadow(0 2cqh 4cqh rgba(255,122,77,.35));animation:float 6s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-2.4cqh) rotate(4deg)}}
+  .sb-title{font-family:var(--disp);font-size:12cqh;line-height:.95;text-transform:uppercase;letter-spacing:-.015em;color:var(--red)}
+  body.arena .sb-title{color:#F6E6DA;text-shadow:0 .035em 0 #5A1A16,0 0 .5em rgba(255,122,77,.25)}
+  .sb-sub{font-size:min(3.3cqh,1.9cqw);font-weight:700;line-height:1.45;color:var(--ink);max-width:42cqw}
+  .sb-meta{display:flex;flex-direction:column;gap:2.4cqh;margin-top:1cqh;padding-top:3cqh;border-top:1px solid var(--line)}
+  #sb-cd{font-size:2.4cqh;color:var(--muted);font-weight:700}
+  #sb-cd b{font-family:var(--disp);font-size:4.6cqh;color:var(--red);margin-left:1cqw;font-weight:400}
+  .sb-row{display:flex;align-items:center;gap:1.4cqw;font-size:2.3cqh;color:var(--muted);font-weight:600;line-height:1.5}
+  .sb-row img{height:9cqh;background:#fff;padding:.6cqh;border-radius:1cqh}
+  .sb-row b{display:block;color:var(--ink);font-size:2.8cqh;font-weight:800}
+  /* day bar */
+  .dbar{position:relative;height:46cqh}
+  .dbar .seg{position:absolute;top:16cqh;height:11cqh;border-radius:1.4cqh;box-shadow:0 0 0 .5cqh var(--ivory);display:flex;align-items:center;justify-content:center}
+  .dbar .seg span{font-weight:850;font-size:4cqh;color:#fff;letter-spacing:-.02em}
+  .dbar .lab{position:absolute;display:flex;flex-direction:column;gap:.5cqh;padding-left:1cqw;border-left:.35cqh solid #CFC5B7;white-space:nowrap}
+  .dbar .lab.up{bottom:calc(100% - 14.5cqh)} .dbar .lab.dn{top:28.5cqh}
+  .dbar .lab.r{padding-left:0;padding-right:1cqw;border-left:none;border-right:.35cqh solid #CFC5B7;align-items:flex-end;text-align:right}
+  .dbar .lab b{font-weight:800;font-size:3.8cqh;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .dbar .lab strong{font-weight:750;font-size:3.1cqh;letter-spacing:-.02em}
+  .dbar .lab span{font-weight:500;font-size:2.4cqh;color:var(--stone)}
+  /* brand mark: italic, scanlines and a small jitter, like the event website */
+  .d .mark{left:5.2cqw;right:auto;top:3.3cqh;font-size:2.3cqh;letter-spacing:.03em;color:var(--pink2);transform:skewX(-12deg);
+    text-shadow:.09em 0 0 rgba(0,170,255,.35),-.09em 0 0 rgba(255,40,90,.35);animation:jit 4s steps(1) infinite}
+  .d .mark::after{display:none;content:'';position:absolute;inset:-.25em -.5em;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(23,17,15,.16) 0 1px,transparent 1px 3px)}
+  .d.dark .mark{color:#F6E6DA;text-shadow:.09em 0 0 rgba(0,170,255,.5),-.09em 0 0 rgba(255,60,90,.55),0 0 .6em rgba(255,122,77,.4)}
+  .d.dark .mark::after{background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px)}
+  @keyframes jit{0%,90%,100%{transform:skewX(-12deg)}91%{transform:skewX(-12deg) translateX(.35cqw)}93%{transform:skewX(-18deg) translateX(-.25cqw)}95%{transform:skewX(-12deg) translateX(.15cqw)}}
+  .d .tl{top:8.6cqh}
+  /* logo band: partners on top, the six VCs below */
+  footer{flex-direction:column;gap:1.3cqh;justify-content:center}
+  footer .grp{gap:3.6cqw;justify-content:center}
+  footer .grp.vcs{gap:3.4cqw}
+  footer .sep{display:none}
+  /* mission cards: same logo slot, bigger titles in the same place */
+  .tc{justify-content:flex-start!important;gap:1.4cqh;padding:2.2cqh 1.6cqw!important}
+  .tc .lw{height:3.6cqh;display:flex;align-items:center}
+  .tc .lw .logo{max-width:60%}
+  .tc .t{font-size:3.5cqh!important;line-height:1.3!important}
+  /* ten or more missions: two rows of five */
+  .topics.wide{grid-template-columns:repeat(5,1fr)!important} .topics.wide .tc .t{font-size:3.1cqh!important}
+  body.deck .tc .t{font-size:3.8cqh!important}
+  .flow em{font-style:normal;color:var(--pink2)}
+  /* live board v2: submission order on the left, eight seats on the right */
+  #board .left{flex:0 0 33%;justify-content:flex-start;padding-top:1cqh;border-right:1px solid rgba(246,230,218,.1)}
+  #board .right{gap:2.2cqh}
+  #board .slots{flex:1}
+  .clk .cd{font-size:9cqh;line-height:1.05;margin-top:.6cqh}
+  .clk .cdl{font-size:4cqh;font-weight:800;margin-top:.8cqh}
+  .sq{display:flex;flex-direction:column;gap:.8cqh;margin-top:1.2cqh;flex:1;min-height:0;overflow:hidden}
+  .sq>div{display:grid;grid-template-columns:5.2cqw minmax(0,1fr) auto;align-items:center;gap:1cqw;padding:1cqh 1.1cqw;border-radius:1.2cqh;background:rgba(255,255,255,.04);border:1px solid rgba(246,230,218,.1);font-size:2.4cqh}
+  .sq .no{color:var(--faint);font-weight:800} .sq .nm{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sq .st{font-size:1.9cqh;font-weight:800;color:var(--muted);white-space:nowrap}
+  .sq .reviewing{border-color:#FF7A4D} .sq .reviewing .st{color:#FF7A4D}
+  .sq .pass{background:rgba(255,122,77,.18);border-color:#FF7A4D} .sq .pass .st{color:#FFB08E}
+  .sq .fail{opacity:.5} .sq .fail .st{color:#FF6B6B} .sq .closed{opacity:.35}
+  .sq .empty{font-size:2.4cqh;color:var(--muted)}
+  /* filled seats: long team names wrap to two lines at most, service on one line */
+  .slot .team{font-size:3.8cqh;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+  .slot .svc{font-size:2.2cqh;margin-top:.6cqh}
+  .slot{justify-content:space-between}
+  .d .shot{position:absolute;border-radius:1.4cqh;box-shadow:0 2cqh 5cqh rgba(40,25,18,.22);border:1px solid rgba(23,17,15,.08)}
+  .sm .rl>div{padding:1.7cqh 0} .sm .rl span{font-size:3.1cqh} .sm .rl b{font-size:3.2cqh;flex-basis:3.4cqw}
+  .rl b.k{display:inline;flex:none;font-size:inherit;color:var(--pink2);margin-right:.4cqw}
+  /* pipeline board */
+  #board{flex-direction:column;gap:2cqh}
+  #board .btop{display:flex;align-items:flex-end;justify-content:space-between;gap:2cqw}
+  #board .btop .cd{font-size:7cqh;line-height:1} #board .btop .cdl{font-size:3.6cqh;font-weight:800;margin-top:.6cqh}
+  #board .btop .cd.final{font-size:11cqh}
+  #board .prize{font-style:normal;font-size:.62em;font-weight:700;color:#FF7A4D;margin-left:.6em;letter-spacing:0;vertical-align:middle}
+  #board .rule2{font-size:2.1cqh;color:var(--muted);text-align:right}
+  .pipe{flex:1;min-height:0;display:grid;grid-template-columns:24fr 2.2cqw 22fr 2.2cqw 32fr 15fr;gap:0 1cqw}
+  .pipe .col{min-height:0;display:flex;flex-direction:column;gap:1.2cqh;padding:1.6cqh 1cqw;border-radius:1.6cqh;background:rgba(255,255,255,.025);border:1px solid rgba(246,230,218,.08);overflow:hidden}
+  .pipe .ch{display:flex;align-items:baseline;justify-content:space-between} .pipe .ch b{font-size:2.6cqh;font-weight:900;letter-spacing:.04em}
+  .pipe .ch span{font-size:2.4cqh;font-weight:800;color:var(--muted)}
+  .pipe .arr{display:flex;align-items:center;justify-content:center;font-size:4cqh;color:rgba(246,230,218,.25)}
+  .chips{display:flex;flex-wrap:wrap;gap:.55cqh .4cqw;align-content:flex-start}
+  .chips i{font-style:normal;font-size:1.7cqh;font-weight:700;padding:.4cqh .6cqw;border-radius:99px;background:rgba(255,255,255,.06);color:rgba(246,230,218,.75);max-width:11cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cards{display:flex;flex-direction:column;gap:.8cqh}
+  .cd2{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.8cqw;padding:1cqh .9cqw;border-radius:1.1cqh;background:rgba(255,122,77,.08);border:1px solid rgba(255,122,77,.45);font-size:2.2cqh}
+  .cd2 .no{color:var(--faint);font-weight:800} .cd2 .nm{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .cd2 .vt{font-size:1.8cqh;font-weight:800;color:#FF9A73}
+  .cd2 .mv{max-width:4.6cqw;object-fit:contain;opacity:.9} .cd2 .mvw{font-size:1.3cqh;font-weight:900;letter-spacing:.08em;color:#FF7A4D}
+  .cd2 .vd{display:flex;gap:.3cqw;align-items:center} .cd2 .vd i{width:1cqh;height:1cqh;border-radius:50%;background:rgba(246,230,218,.18)}
+  .cd2 .vd i.p{background:#4ADE80;box-shadow:0 0 .8cqh rgba(74,222,128,.75)} .cd2 .vd i.f{background:#FF5147;box-shadow:0 0 .8cqh rgba(255,81,71,.75)}
+  .cd2 .vd{gap:.35cqw} .cd2 .vd i{width:1.15cqh;height:1.15cqh}
+  .vlg{font-style:normal;font-size:1.4cqh;font-weight:800;color:var(--muted);margin-left:.6cqw;letter-spacing:.04em;vertical-align:middle} .vlg i{display:inline-block;width:1cqh;height:1cqh;border-radius:50%;margin:0 .3cqw 0 .6cqw;vertical-align:middle} .vlg i.g{background:#4ADE80} .vlg i.r{background:#FF5147}
+  .cd2 .rdy{font-size:1.7cqh;font-weight:900;letter-spacing:.04em;color:#FFD27A;white-space:nowrap}
+  .cd2.ready{border-color:#FFC857;background:rgba(255,200,87,.14);animation:readyglow 1.4s ease-in-out infinite}
+  @keyframes readyglow{50%{box-shadow:0 0 2.4cqh rgba(255,200,87,.55)}}
+  .cd2.dim{background:rgba(255,255,255,.03);border-color:rgba(246,230,218,.1);opacity:.55}
+  .more{font-size:2cqh;color:var(--muted);padding-left:.4cqw}
+  .chips.dense{gap:.45cqh .35cqw} .chips.dense i{font-size:1.55cqh;padding:.35cqh .5cqw}
+  .seats{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:.9cqh .7cqw}
+  .seat{position:relative;display:flex;flex-direction:column;justify-content:center;gap:.3cqh;padding:.8cqh 1cqw;border-radius:1.1cqh;border:1px dashed rgba(246,230,218,.14);min-width:0}
+  .seat .rv{font-style:normal;font-weight:900;color:#FFD27A}
+  .seat .smv{position:absolute;top:1cqh;right:.9cqw;display:flex} .seat .smv .mv{max-width:5cqw;object-fit:contain;opacity:.85} .seat .smv .mvw{font-size:1.2cqh;font-weight:900;letter-spacing:.08em;color:#FFB08E}
+  .seat .n{font-size:1.6cqh;font-weight:800;letter-spacing:.06em;color:var(--faint)} .seat .e{font-size:2.2cqh;font-weight:900;color:rgba(246,230,218,.12)}
+  .seat.on{border:none;background:linear-gradient(160deg,rgba(255,122,77,.3),rgba(255,122,77,.08));box-shadow:inset 0 0 0 2px #FF7A4D,0 0 3cqh rgba(255,122,77,.25)}
+  .seat.on .n{color:#FFB08E} .seat b{font-size:2.5cqh;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .seat .s{font-size:1.7cqh;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .moved{animation:moved 1.6s ease}
+  @keyframes moved{0%{transform:translateX(-3cqw);opacity:0}40%{opacity:1;box-shadow:0 0 0 .4cqh #FF7A4D}100%{transform:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+<header class="hdr">
+  <div class="brand"><span class="title" id="brandTitle"></span><span class="sub" id="brandSub"></span></div>
+  <div class="tag" id="tag"></div>
+  <div class="right"><span class="clock num" id="clock"></span><img class="mascot" id="mascot" alt=""></div>
+</header>
+<main id="main">
+  <section class="scene" id="standby"></section>
+  <section class="scene" id="board"></section>
+  <section class="scene" id="topics"></section>
+  <section class="scene" id="commits"></section>
+  <section class="scene" id="missions"></section>
+  <section class="scene center" id="break"></section>
+  <section class="scene" id="demo"></section>
+  <section class="scene" id="match"></section>
+  <section class="scene center" id="announce"></section>
+  <section class="scene center" id="closing"></section>
+  <section class="scene" id="slide"></section>
+  <div class="ticker" id="ticker" style="display:none"><div class="lbl">LIVE COMMITS</div><div class="tw"><div class="track" id="track"></div></div></div>
+</main>
+<footer id="logos"></footer>
+<div class="flash" id="flash"></div>
+<div class="subban" id="subBanner"></div>
+</div>
+
+<script type="module">
+import { api, poll, serverNow, hm, hms, dur, ago, esc, VCS, HOSTS, EVENT, NAME, missionTitle, $ } from '/assets/common.js';
+import { SLIDES, stepSlide } from '/assets/slides.js';
+
+const params = new URLSearchParams(location.search);
+const KEY = params.get('key'); // with ?key=ADMIN the LED also accepts keyboard / clicker input
+let S = null, lastScene = null, shownFlash = null, prevPass = new Set(), lastRender = '';
+let pending = {}, pendingUntil = 0;
+const PREVIEW = (params.get('preview') || '').split(':');
+const EMBED = window.self !== window.top; // the console's small preview stays silent
+let lastNewSubAt = 0; // set by checkNewSubs
+const ledState = () => {
+  const srv = PREVIEW[0] ? { ...(S?.led || {}), scene: PREVIEW[0], slide: Number(PREVIEW[1] || 0), topicsShown: 99, flash: null } : (S?.led || {});
+  // keep local clicker presses until the server has caught up with every pressed value (max 10s)
+  if (Object.keys(pending).length && Object.entries(pending).every(([k, v]) => JSON.stringify(srv[k]) === JSON.stringify(v))) pending = {};
+  const out = { ...srv, ...(Date.now() < pendingUntil ? pending : {}) };
+  // the old separate mission scene now shows the opening's mission slide, so there is only one look
+  if (out.scene === 'topics') return { ...out, scene: 'slide', slide: MISSION_I };
+  // the live board and the commit activity take turns on their own (40s / 25s), the same on every screen
+  // from 30 minutes before the submit deadline the board stays put
+  const finalStretch = serverNow() >= new Date(S?.config?.submitDeadline || EVENT.times.submitDeadline).getTime() - 30 * 60000;
+  const freshReveal = out.flash && serverNow() - (out.flash.at || 0) < 35000;
+  const freshSub = Date.now() - lastNewSubAt < 30000;
+  if (out.scene === 'board' && out.autoRotate !== false && !PREVIEW[0] && !freshReveal && !freshSub && !finalStretch) {
+    // seconds for board / commits / missions: the board gets more time while teams are being judged;
+    // config.rotate (set from the admin API) overrides it without reloading the screen
+    const busy = (S?.subs || []).some(x => x.status === 'queued' || x.status === 'reviewing');
+    const R = Array.isArray(S?.config?.rotate) && S.config.rotate.length === 3 ? S.config.rotate : busy ? [35, 15, 15] : [20, 25, 25];
+    const t = serverNow() % ((R[0] + R[1] + R[2]) * 1000);
+    if (t >= (R[0] + R[1]) * 1000) return { ...out, scene: 'missions' };
+    if (t >= R[0] * 1000) return { ...out, scene: 'commits' };
+  }
+  return out;
+};
+const MISSION_I = SLIDES.findIndex(x => x.topics);
+
+// the event's name, date and mark in the header; the logo band of partners and VCs at the bottom
+document.title = `${EVENT.short} LED`;
+$('#brandTitle').innerHTML = `${esc(NAME[0])}${NAME[1] ? ` <b>${esc(NAME[1])}</b>` : ''}`;
+$('#brandSub').textContent = `${EVENT.dateLabel} · ${EVENT.venue}`;
+if (EVENT.mark) { $('#mascot').src = EVENT.mark; $('#mascot').onerror = () => $('#mascot').remove(); } else $('#mascot').remove();
+const CH = EVENT.discord?.participants, P = EVENT.prize, TRAILER = EVENT.media?.trailer, POSTER = EVENT.media?.poster;
+const logo = (l, base) => `<img src="${l.color || l.logo}" alt="${esc(l.name)}" style="height:calc(min(${base}cqh, ${(base*0.5).toFixed(2)}cqw) * ${l.h})">`;
+$('#logos').innerHTML = `<div class="grp">${HOSTS.map(h => logo(h, 4.4)).join('')}</div><div class="grp vcs">${VCS.map(v => logo(v, 3.5)).join('')}</div>`;
+
+const TAGS = { standby: 'WELCOME', board: '<span class="dot"></span>LIVE · 본선 진출 현황', topics: 'MISSION', commits: '<span class="dot"></span>LIVE · 개발 현황', missions: '<span class="dot"></span>LIVE · 미션별 도전 현황', break: 'BREAK', demo: 'SHARK TANK', match: 'MATCHING', announce: 'NOTICE', closing: 'THANK YOU', slide: '' };
+
+function show(scene) {
+  if (scene !== 'standby') { const v = document.getElementById('trailer'); if (v) v.pause(); }
+  document.querySelectorAll('.scene').forEach(el => el.classList.toggle('on', el.id === scene));
+  document.body.classList.toggle('deck', scene === 'slide');
+  if (scene !== 'demo') document.body.classList.remove('stagefull');
+  document.body.classList.toggle('arena', scene !== 'slide');
+  $('#tag').innerHTML = TAGS[scene] ?? '';
+  lastScene = scene;
+}
+
+const teamName = id => S.teams.find(t => t.id === id)?.name || id;
+const team = id => S.teams.find(t => t.id === id) || {};
+const missionOf = id => { const tp = (S.config.topics || []).find(o => o.id === team(id).topic?.topic); return tp ? { vc: VCS.find(v => v.key === tp.vc) || null, title: tp.vc ? tp.title : `와일드카드 · ${tp.short || tp.title}` } : null; };
+const vcMark = (id, base) => { const m = missionOf(id); return m?.vc ? `<img class="mv" src="${m.vc.logo}" style="height:${(base * m.vc.h).toFixed(2)}cqh" alt="${esc(m.vc.name)}">` : m ? `<span class="mvw">WILD</span>` : ''; };
+const sub = id => S.subs.find(x => x.teamId === id);
+
+let sbMode = 'info', sbInfoSince = 0;
+// standby: a title card with the event mark; a poster image and a trailer join in only when assets/event.js names them
+function renderStandby(led) {
+  const el = $('#standby');
+  if (!el.dataset.built) {
+    el.dataset.built = '1';
+    const art = `<div class="sb-art"><div class="rays"></div>${EVENT.mark ? `<img src="${esc(EVENT.mark)}" onerror="this.remove()" alt="">` : ''}</div>`;
+    el.innerHTML = `
+      ${TRAILER ? `<div class="vid hide"><video id="trailer" src="${esc(TRAILER)}" playsinline muted preload="auto"></video></div>` : ''}
+      <div class="info">
+        ${POSTER ? `<img class="poster" src="${esc(POSTER)}" alt="">` : art}
+        <div class="sb-col">
+          <div class="kicker">ONE DAY HACKATHON · ${esc(EVENT.dateLabel)} · ${esc(EVENT.venue)}</div>
+          <div class="sb-title">${esc(NAME[0])}${NAME[1] ? `<br>${esc(NAME[1])}` : ''}</div>
+          <div class="sb-sub">${esc(EVENT.tagline || '')}</div>
+          <div class="sb-meta">
+            <div id="sb-cd" class="num"></div>
+            <div class="sb-row"><div>행사장 Wi-Fi<b id="sb-wifi"></b></div></div>
+          </div>
+        </div>
+      </div>`;
+    // a poster that fails to load gives way to the title card art
+    el.querySelector('.poster')?.addEventListener('error', e => e.target.replaceWith(Object.assign(document.createElement('div'), { innerHTML: art }).firstChild));
+    if (TRAILER) {
+      const v = $('#trailer');
+      const toInfo = () => { sbMode = 'info'; sbInfoSince = Date.now(); el.querySelector('.vid').classList.add('hide'); el.querySelector('.info').classList.remove('hide'); };
+      v.addEventListener('ended', toInfo);
+      // never leave a black frame on the LED: if the trailer stops or fails, fall back to the title card
+      v.addEventListener('error', () => { toInfo(); sbMode = 'off'; });
+      v.addEventListener('pause', () => setTimeout(() => { if (sbMode === 'video' && v.paused && !v.ended) toInfo(); }, 1500));
+      sbInfoSince = Date.now() - 15000; // first trailer starts ~10s after the screen opens
+    }
+  }
+  const v = $('#trailer');
+  if (v) {
+    v.muted = EMBED || led.standbySound === false; // trailer sound on unless turned off in the console; never in the console preview
+    if (sbMode === 'info' && Date.now() - sbInfoSince > (led.standbyInfoSec || 25) * 1000) {
+      sbMode = 'video';
+      el.querySelector('.info').classList.add('hide'); el.querySelector('.vid').classList.remove('hide');
+      v.currentTime = 0; v.play().catch(() => { v.muted = true; return v.play(); }).catch(() => { sbMode = 'info'; sbInfoSince = Date.now(); el.querySelector('.vid').classList.add('hide'); el.querySelector('.info').classList.remove('hide'); });
+    }
+  }
+  const left = new Date(led.standbyTarget || EVENT.times.standby).getTime() - serverNow();
+  $('#sb-cd').innerHTML = left > 0 && left < 864e5 ? `시작까지 <b>${dur(left)}</b>` : ''; // more than a day away: the date in the kicker says enough
+  $('#sb-wifi').textContent = led.wifi || EVENT.wifi || '';
+}
+
+// live board: every team moves left to right, 제출 전 → 심사 중 → 본선 / 탈락
+let prevCol = {};
+function renderBoard() {
+  const cap = S.config.capacity, th = S.config.threshold;
+  const left = new Date(S.config.submitDeadline).getTime() - serverNow();
+  const before = new Date(S.config.submitOpenAt).getTime() - serverNow();
+  const subOf = Object.fromEntries(S.subs.map(x => [x.teamId, x]));
+  const colOf = id => { const x = subOf[id]; return !x ? 'wait' : x.status === 'pass' ? 'pass' : (x.status === 'fail' || x.status === 'closed') ? 'out' : 'review'; };
+  const now = Object.fromEntries(S.teams.map(t => [t.id, colOf(t.id)]));
+  const moved = id => prevCol[id] && prevCol[id] !== now[id] ? ' moved' : '';
+  const waiting = S.teams.filter(t => now[t.id] === 'wait');
+  const review = S.subs.filter(x => now[x.teamId] === 'review').sort((a, b) => a.no - b.no);
+  const out = S.subs.filter(x => now[x.teamId] === 'out').sort((a, b) => a.no - b.no);
+  const no = x => '#' + String(x.no).padStart(2, '0');
+  const seats = Array.from({ length: cap }, (_, i) => {
+    const id = S.passList[i];
+    if (!id) return `<div class="seat"><span class="n">FINALIST ${String(i + 1).padStart(2, '0')}</span><span class="e">OPEN</span></div>`;
+    const x = subOf[id] || {};
+    return `<div class="seat on${moved(id)}"><span class="n">FINALIST ${String(i + 1).padStart(2, '0')}</span><b>${esc(teamName(id))}</b><span class="s">${x.result?.revived ? '<em class="rv">패자부활</em> ' : ''}${esc(x.serviceName || '')}</span><span class="smv">${vcMark(id, 1.3)}</span></div>`;
+  }).join('');
+  const clock = S.full ? `<div class="kicker">본선 ${cap}팀 확정</div><div class="cdl">샤크탱크${EVENT.times?.sharkTank ? ' ' + hm(EVENT.times.sharkTank) : ''}</div>`
+    : before > 0 ? `<div class="kicker">제출은 ${hm(S.config.submitOpenAt)}부터</div><div class="cdl">주제 선언 ${hm(S.config.topicDeadline)}까지</div>`
+    : left > 0 ? `<div class="kicker">제출 마감 ${hm(S.config.submitDeadline)}까지 · 선착순</div><div class="cd num ${left < 600000 ? 'crit' : left < 3600000 ? 'hot' : ''}${left < 1800000 ? ' final' : ''}">${dur(left)}</div>`
+    : `<div class="kicker">제출 마감</div><div class="cdl">남은 심사를 진행하고 있어요</div>`;
+  const MAXR = 9; // what fits in a column at any window size
+  const html = `
+    <div class="btop"><div class="clk">${clock}</div><div class="rule2">VC ${th}곳이 PASS하면 본선, ${th}곳이 FAIL하면 탈락 · 본선 ${cap}자리가 차면 마감${CH ? `<br>문의는 디스코드 ${esc(CH)}` : ''}</div></div>
+    <div class="pipe">
+      <div class="col"><div class="ch"><b>제출 전</b><span class="num">${waiting.length}</span></div>
+        <div class="chips${waiting.length > 30 ? ' dense' : ''}">${waiting.map(t => `<i class="${moved(t.id)}">${esc(t.name)}</i>`).join('')}</div></div>
+      <div class="arr">→</div>
+      <div class="col"><div class="ch"><b>심사 중 <i class="vlg"><i class="g"></i>PASS<i class="r"></i>FAIL</i></b><span class="num">${review.length}</span></div>
+        <div class="cards">${review.slice(0, MAXR).map(x => `<div class="cd2${x.ready ? ' ready' : ''}${moved(x.teamId)}"><span class="no num">${no(x)}</span><span class="nm">${esc(teamName(x.teamId))}</span>${x.ready ? '<span class="rdy">곧 결과 공개</span>' : `<span class="vd">${Array.from({ length: S.vcs.length }, (_, k) => `<i class="${k < (x.pass || 0) ? 'p' : k < (x.pass || 0) + (x.fail || 0) ? 'f' : ''}"></i>`).join('')}</span>`}</div>`).join('')}${review.length > MAXR ? `<div class="more">외 ${review.length - MAXR}팀</div>` : ''}</div></div>
+      <div class="arr">→</div>
+      <div class="col wide"><div class="ch"><b>본선${P ? ` <i class="prize">${esc(P.label)} ${esc(P.amount)}</i>` : ''}</b><span class="num">${S.passList.length} / ${cap}</span></div><div class="seats">${seats}</div></div>
+      <div class="col narrow"><div class="ch"><b>탈락</b><span class="num">${out.length}</span></div>
+        <div class="cards">${out.slice(-MAXR).map(x => `<div class="cd2 dim${moved(x.teamId)}"><span class="no num">${no(x)}</span><span class="nm">${esc(teamName(x.teamId))}</span></div>`).join('')}${out.length > MAXR ? `<div class="more">외 ${out.length - MAXR}팀</div>` : ''}</div></div>
+    </div>`;
+  if ($('#board').dataset.h !== html) { $('#board').dataset.h = html; $('#board').innerHTML = html; }
+  prevCol = now;
+}
+
+function renderTopics(led, target = $('#topics')) {
+  const shown = led.topicsShown ?? 99;
+  const topics = S.config.topics || [];
+  const key = 'topics:' + shown + ':' + topics.length;
+  if (target.dataset.i === key) return;
+  target.dataset.i = key;
+  target.innerHTML = `<div class="topics${topics.length > 9 ? ' wide' : ''}">${topics.map((t, i) => {
+    const vc = VCS.find(v => v.key === t.vc);
+    const hidden = i >= shown;
+    const flip = !hidden && i === shown - 1 ? 'flip' : '';
+    if (t.id === 'wild') return `<div class="tc wild ${hidden ? 'hidden' : flip}"><div class="lw"><div class="wl">WILDCARD</div></div><div class="t">${esc(missionTitle(t))}</div></div>`;
+    return `<div class="tc ${hidden ? 'hidden' : flip}"><div class="lw">${vc ? `<img class="logo" src="${document.body.classList.contains('arena') ? vc.logo : (vc.color || vc.logo)}" style="height:${(3.3 * vc.h).toFixed(2)}cqh" alt="">` : ''}</div><div class="t">${esc(t.title)}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderCommits() {
+  const withC = S.teams.filter(t => t.commits);
+  const total = withC.reduce((a, t) => a + (t.commits.count || 0), 0);
+  const now = serverNow();
+  const live = withC.filter(t => now - (t.commits.lastAt || 0) < 15 * 60000).length;
+  const rows = withC.slice().sort((a, b) => (b.commits.count || 0) - (a.commits.count || 0)).slice(0, 12);
+  const max = Math.max(1, ...rows.map(t => t.commits.count || 0));
+  const key = total + ':' + live + ':' + (S.feed[0]?.at || 0);
+  if ($('#commits').dataset.k === key + ':' + Math.floor(now / 30000)) return;
+  $('#commits').dataset.k = key + ':' + Math.floor(now / 30000);
+  $('#commits').innerHTML = `
+    <div class="cmwrap">
+      <div class="cmstats">
+        <div><span class="n num">${total.toLocaleString('ko-KR')}</span><span class="l">오늘 올라온 커밋</span></div>
+        <div><span class="n num">${live}</span><span class="l">지금 개발 중인 팀 <i>(15분 안에 커밋)</i></span></div>
+        <div><span class="n num">${withC.length}</span><span class="l">커밋을 시작한 팀 / ${S.teams.length}</span></div>
+      </div>
+      <div class="cmcols">
+        <div class="cmleft"><div class="kicker">팀별 커밋 TOP 12 · 모든 레포는 공개</div>
+          ${rows.map(t => { const hot = now - (t.commits.lastAt || 0) < 5 * 60000; return `<div class="cmrow${hot ? ' hot' : ''}"><b>${esc(t.name)}</b><div class="cbar"><div class="bar" style="width:${(100 * (t.commits.count || 0) / max).toFixed(0)}%"></div></div><span class="num">${t.commits.count}${t.commits.countPlus ? '+' : ''}</span></div>`; }).join('') || '<div class="muted">아직 커밋이 없어요</div>'}
+        </div>
+        <div class="cmright"><div class="kicker">방금 올라온 커밋</div>
+          <div class="feed">${S.feed.slice(0, 9).map(f => `<div><b>${esc(f.team)}</b> <span class="muted">· ${ago(f.at)}</span><br>${esc(String(f.msg).split('\n')[0].slice(0, 90))}</div>`).join('')}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// which mission each team took, busiest first
+function renderMissions() {
+  const topics = S.config.topics || [];
+  const by = Object.fromEntries(topics.map(t => [t.id, []]));
+  // status per team: 본선 > 심사 중 > 개발 중 > 탈락 (results only once announced)
+  const st = {}; S.subs.forEach(x => { st[x.teamId] = x.status === 'pass' ? 'p' : (x.status === 'fail' || x.status === 'closed') ? 'o' : 'r'; });
+  const rank = { p: 0, r: 1, d: 2, o: 3 };
+  S.teams.forEach(t => { const k = t.topic?.topic; if (k && by[k]) by[k].push({ n: t.name, s: st[t.id] || 'd' }); });
+  Object.values(by).forEach(a => a.sort((x, y) => rank[x.s] - rank[y.s]));
+  const declared = S.teams.filter(t => t.topic).length;
+  // missions nobody picked stay off the big screen (no partner sees a public zero)
+  const rows = topics.map((t, i) => ({ t, i, names: by[t.id] })).filter(r => r.names.length).sort((a, b) => b.names.length - a.names.length || a.i - b.i);
+  const key = declared + '|' + rows.map(r => r.t.id + ':' + r.names.map(x => x.n + x.s).join(',')).join('|');
+  if ($('#missions').dataset.k === key) return;
+  $('#missions').dataset.k = key;
+  $('#missions').innerHTML = `<div class="mswrap">
+    <div class="cmstats ms"><div><span class="n num">${declared}</span><span class="l">주제를 선언한 팀 / ${S.teams.length}</span></div>
+      <div><span class="n num">${rows.length}</span><span class="l">팀이 도전 중인 미션</span></div>
+      <div class="mslegend"><i class="s-p">본선</i><i class="s-r">심사 중</i><i class="s-d">개발 중</i><i class="s-o">탈락</i></div></div>
+    <div class="msrows">${rows.map(({ t, names }) => {
+      const vc = VCS.find(v => v.key === t.vc);
+      const title = missionTitle(t);
+      return `<div class="msrow${names.length ? '' : ' none'}"><span class="mn num">${names.length}</span>
+        <div class="mlogo">${vc ? `<img src="${vc.logo}" style="height:${(2.5 * vc.h).toFixed(2)}cqh" alt="">` : '<span class="wl">WILDCARD</span>'}</div>
+        <b class="mt">${esc(title)}</b><span class="mteams">${names.map(x => `<i class="s-${x.s}">${esc(x.n)}</i>`).join('')}</span></div>`;
+    }).join('')}</div></div>`;
+}
+
+// the optional QR box (assets/event.js qr.break) only shows when an image is set
+const qrBox = (q, style = '') => q?.img ? `<div class="qrbox"${style ? ` style="${style}"` : ''}><img src="${esc(q.img)}" onerror="this.parentNode.remove()" alt=""><div class="p" style="text-align:left;white-space:pre-line">${esc(q.text || '')}</div></div>` : '';
+function renderBreak(led) {
+  const until = new Date(led.breakUntil || EVENT.times.sharkTank).getTime() - serverNow();
+  $('#break').innerHTML = `
+    <div class="kicker">${esc(led.breakTitle || 'SHARK TANK PREP')}</div>
+    <div class="h1" style="margin:2cqh 0">${esc(led.breakText || '샤크탱크를 준비해 주세요')}</div>
+    ${until > 0 && until < 864e5 ? `<div class="h2 num">샤크탱크까지 <span style="color:var(--fire)">${dur(until)}</span></div>` : ''}
+    ${qrBox(EVENT.qr?.break, 'justify-content:center')}`;
+}
+
+// ---------- shark tank stage ----------
+// the finalist's submitted PDF is drawn page by page with pdf.js (all eight preloaded into memory, so slides survive a flaky network)
+let pdfLib = null, stageKey = '', drawn = '', stageN = 0, stageLocal = null;
+const pdfDocs = new Map(), pdfFail = new Map();
+const loadPdfLib = () => pdfLib || (pdfLib = new Promise((ok, no) => {
+  const el = document.createElement('script');
+  el.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  el.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(window.pdfjsLib); };
+  el.onerror = () => { pdfLib = null; no(new Error('pdf.js')); };
+  document.head.appendChild(el);
+}));
+function pdfDoc(url) {
+  if (!pdfDocs.has(url)) {
+    if (Date.now() - (pdfFail.get(url) || 0) < 5000) return Promise.reject(new Error('retry later'));
+    pdfDocs.set(url, loadPdfLib().then(lib => lib.getDocument({ url }).promise).catch(e => { pdfDocs.delete(url); pdfFail.set(url, Date.now()); throw e; }));
+  }
+  return pdfDocs.get(url);
+}
+let preloaded = '';
+function preloadPdfs(order) {
+  const urls = order.map(id => sub(id)?.pdfUrl).filter(Boolean);
+  if (preloaded === urls.join('|')) return;
+  preloaded = urls.join('|');
+  urls.forEach(u => pdfDoc(u).catch(() => {}));
+}
+async function drawPdf(url, page) {
+  const box = $('#demo .sbody'), cv = $('#stgCanvas');
+  if (!box || !cv) return;
+  const r = box.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  if (r.width < 10 || r.height < 10) return;
+  const want = `${url}|${page}|${Math.round(r.width)}x${Math.round(r.height)}|${dpr}`;
+  if (drawn === want) return;
+  drawn = want;
+  try {
+    const doc = await pdfDoc(url);
+    stageN = doc.numPages;
+    const p = Math.max(1, Math.min(page + 1, doc.numPages));
+    const pg = await doc.getPage(p);
+    const v1 = pg.getViewport({ scale: 1 });
+    const scale = Math.min(r.width * 0.96 / v1.width, r.height * 0.95 / v1.height);
+    const vp = pg.getViewport({ scale: scale * dpr });
+    const off = document.createElement('canvas');
+    off.width = Math.round(vp.width); off.height = Math.round(vp.height);
+    await pg.render({ canvasContext: off.getContext('2d'), viewport: vp }).promise;
+    if (drawn !== want || !cv.isConnected) return;
+    cv.width = off.width; cv.height = off.height;
+    cv.style.width = `${off.width / dpr}px`; cv.style.height = `${off.height / dpr}px`;
+    cv.getContext('2d').drawImage(off, 0, 0);
+    const pgEl = $('#stgPg'); if (pgEl) pgEl.textContent = `${p} / ${doc.numPages}`;
+  } catch (e) {
+    console.warn('pdf', e);
+    if (drawn === want) { drawn = ''; const pgEl = $('#stgPg'); if (pgEl) pgEl.textContent = '발표자료를 불러오는 중…'; }
+  }
+}
+
+// after a team's Q&A: how many VCs have answered (never who), then who raised a hand, then the VC the team chose
+let offerPairs = -1;
+function offerPanel(led, id) {
+  const offer = led.offer, tm = led.teamMatch || {};
+  const n = Object.keys(tm).length;
+  if (offerPairs >= 0 && n > offerPairs) sfx('pass');
+  offerPairs = n;
+  const pv = VCS.find(v => v.key === tm[id]);
+  const lg = (v, h) => `<img src="${v.logo}" style="height:${(h * v.h).toFixed(2)}cqh;max-width:14cqw;object-fit:contain" alt="${esc(v.name)}">`;
+  if (pv) return `<div class="offer done"><div class="ok">후속 미팅 확정</div>${lg(pv, 5)}</div>`;
+  if (!offer || offer.teamId !== id) return '';
+  if (offer.open) return `<div class="offer"><div class="oq">이 팀과 후속 미팅을 하고 싶은 VC는?</div><div class="cnt num">${S.matchCount ?? 0} / ${S.matchNeed ?? VCS.length}<small>곳 응답</small></div></div>`;
+  if (offer.shown) {
+    const picks = (KEY && opMatches) || S.matches || {};
+    const hands = VCS.filter(v => (picks[v.key] || []).includes(id));
+    if (!hands.length) return `<div class="offer"><div class="oq">이번 팀에는 제안한 VC가 없어요</div></div>`;
+    return `<div class="offer"><div class="oq">${hands.length > 1 ? `VC ${hands.length}곳이 손을 들었어요 · 팀이 한 곳을 골라요` : '후속 미팅을 원하는 VC'}</div><div class="hands">${hands.map(v => lg(v, 4.4)).join('')}</div></div>`;
+  }
+  return '';
+}
+
+function renderDemo(led) {
+  const demo = led.demo || { order: S.passList, idx: 0 };
+  const order = demo.order?.length ? demo.order : S.passList;
+  if (!order.length) { document.body.classList.remove('stagefull'); stageKey = ''; $('#demo').innerHTML = `<div style="margin:auto;text-align:center"><div class="kicker">SHARK TANK${EVENT.times?.sharkTank ? ' · ' + hm(EVENT.times.sharkTank) : ''}</div><div class="h1" style="margin-top:2cqh">본선 ${S.config.capacity}팀의 발표 순서가<br>여기에 떠요</div></div>`; return; }
+  preloadPdfs(order);
+  const idx = Math.max(0, Math.min(demo.idx || 0, order.length - 1));
+  // a key press on this screen shows at once; the server copy catches up within a second
+  const local = stageLocal && Date.now() < stageLocal.until && stageLocal.idx === idx ? stageLocal : null;
+  const view = local?.view || demo.view || 'intro', page = local?.page ?? demo.page ?? 0;
+  const id = order[idx];
+  const x = sub(id) || {}, t = team(id);
+  const timed = !!demo.endsAt || demo.left != null;
+  const leftMs = demo.endsAt ? demo.endsAt - serverNow() : demo.left;
+  document.body.classList.toggle('stagefull', view !== 'intro');
+  if (view === 'intro') {
+    stageKey = ''; drawn = '';
+    const timer = timed ? `<div class="muted" style="font-size:2.4cqh">${demo.phase === 'qa' ? '질의응답' : '발표'}</div><div class="timer num ${leftMs < 0 ? 'over' : leftMs < 60000 ? 'warn' : ''}">${leftMs < 0 ? '+' + dur(-leftMs, false) : dur(leftMs, false)}</div>` : '';
+    const tm = led.teamMatch || {}, pairVc = tid => VCS.find(v => v.key === tm[tid]);
+    const html = `<div style="display:flex" class="demo-wrap">
+    <div class="lineup">${order.map((tid, i) => { const pv = pairVc(tid); return `<div class="${i === idx ? 'cur' : i < idx ? 'done' : ''}">${i + 1}. ${esc(teamName(tid))}${pv ? `<img class="lv" src="${pv.logo}" style="height:${(2.4 * pv.h).toFixed(2)}cqh" alt="">` : ''}</div>`; }).join('')}</div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:2cqh;min-width:0">
+      <div class="kicker">SHARK TANK · ${idx + 1} / ${order.length}</div>
+      <div class="h1">${esc(t.name || '')}</div>
+      <div class="p">${esc((t.members || []).join(' · '))}</div>
+      <div class="h2" style="margin-top:1cqh">${esc(x.serviceName || '')}</div>
+      <div class="p">${esc(x.oneLiner || '')}</div>
+      ${offerPanel(led, id) || timer}
+    </div></div>`;
+    if ($('#demo').dataset.h !== html) { $('#demo').innerHTML = html; $('#demo').dataset.h = html; }
+    return;
+  }
+  const src = view === 'demo' ? x.demoUrl : x.pdfUrl;
+  const key = `${id}|${view}|${src}`;
+  if (stageKey !== key) {
+    stageKey = key; drawn = ''; $('#demo').dataset.h = '';
+    $('#demo').innerHTML = `<div class="stg">
+      <div class="sbar"><div class="sl"><span class="k">SHARK TANK · ${idx + 1} / ${order.length}</span><b>${esc(t.name || '')}</b><span class="sv">${esc(x.serviceName || '')}</span></div><div class="sr" id="stgTimer"></div></div>
+      <div class="sbody">${view === 'demo'
+        ? (src ? `<iframe src="${esc(src)}" allow="autoplay; clipboard-read; clipboard-write; microphone; camera; fullscreen; geolocation" allowfullscreen></iframe>` : '<div class="msg">데모 링크가 없어요</div>')
+        : (src ? '<canvas id="stgCanvas"></canvas><div class="spgn" id="stgPg"></div>' : '<div class="msg">발표자료가 없어요</div>')}</div>
+    </div>`;
+  }
+  const th = timed ? `<span class="ph">${demo.phase === 'qa' ? '질의응답' : '발표'}</span><span class="tm num ${leftMs < 0 ? 'over' : leftMs < 60000 ? 'warn' : ''}">${leftMs < 0 ? '+' + dur(-leftMs, false) : dur(leftMs, false)}</span>` : '';
+  const tEl = $('#stgTimer');
+  if (tEl && tEl.dataset.h !== th) { tEl.innerHTML = th; tEl.dataset.h = th; }
+  if (view === 'slides' && src) drawPdf(src, page);
+}
+
+// final matching board: each finalist with the VC it chose, or out
+let opMatches = null, pairCount = -1;
+function renderMatch(led) {
+  const tm = led.teamMatch || {};
+  const nPairs = Object.keys(tm).length;
+  if (pairCount >= 0 && nPairs > pairCount) sfx('pass');
+  pairCount = nPairs;
+  const lg = v => `<img src="${v.logo}" style="height:${(2.8 * v.h).toFixed(2)}cqh" alt="${esc(v.name)}">`;
+  const rows = S.passList.map(id => {
+    const pv = VCS.find(v => v.key === tm[id]);
+    let mid, res = '', cls = '';
+    if (pv) { mid = lg(pv); res = '<span style="color:var(--gold)">후속 미팅</span>'; cls = 'hit'; }
+    else if (led.matchFinal) { mid = '<span class="muted" style="font-size:2.2cqh">매칭 없음</span>'; res = '<span style="color:var(--red)">탈락</span>'; cls = 'miss'; }
+    else mid = '<span class="muted">· · ·</span>';
+    return `<div class="mrow ${cls}"><div class="nm">${esc(teamName(id))}</div><div class="vcs">${mid}</div><div class="res">${res}</div></div>`;
+  }).join('');
+  const fin = () => {
+    const matched = S.passList.filter(id => tm[id]), rest = S.passList.filter(id => !tm[id]);
+    const card = (id, i) => { const v = VCS.find(x => x.key === tm[id]); const x = sub(id) || {}; return `<div class="pc" style="animation-delay:${(i * 0.12).toFixed(2)}s"><div class="lg">${v ? `<img src="${v.logo}" alt="${esc(v.name)}">` : ''}</div><div class="tx"><div class="tn">${esc(teamName(id))}</div><div class="sv">${esc(x.serviceName || '')}</div></div></div>`; };
+    return `<div class="fin"><div class="ft"><span class="k">SHARK TANK · FINAL</span><h1>후속 미팅 <b>${matched.length}팀</b> 확정</h1></div>
+      <div class="fb"><div class="pairs">${matched.map(card).join('')}</div>
+        <div class="side"><div class="sh">함께한 본선 팀</div><div class="sl">${rest.map(id => `<div>${esc(teamName(id))}</div>`).join('') || '<div class="muted">-</div>'}</div>
+          ${P ? `<div class="cr"><b>${esc(P.amount)}</b><span>본선 ${S.passList.length}팀 모두<br>${esc(P.label)}</span></div>` : ''}</div></div></div>`;
+  };
+  const html = led.matchFinal ? fin() : `<div class="match"><div class="kicker">VC × TEAM MATCHING · 후속 미팅 ${nPairs}팀 확정</div>${rows}</div>`;
+  if ($('#match').dataset.h === html) return;
+  $('#match').dataset.h = html;
+  $('#match').innerHTML = html;
+}
+
+function renderAnnounce(led) {
+  const a = led.announce || {};
+  $('#announce').innerHTML = `<div class="kicker">${esc(a.kicker || 'NOTICE')}</div><div class="h1" style="margin:2cqh 0">${esc(a.title || '')}</div><div class="p" style="max-width:70cqw;white-space:pre-line">${esc(a.body || '')}</div>`;
+}
+
+function renderClosing() {
+  const html = `<div class="kicker">THANK YOU</div><div class="sb-title" style="margin:2.4cqh 0 2.2cqh;font-size:15cqh">${esc(NAME[0])}${NAME[1] ? `<br>${esc(NAME[1])}` : ''}</div><div class="sb-sub" style="max-width:none;margin-bottom:3cqh">${esc(EVENT.tagline || '')}</div>
+    ${qrBox(EVENT.qr?.community)}`;
+  if ($('#closing').dataset.h !== html) { $('#closing').dataset.h = html; $('#closing').innerHTML = html; }
+}
+
+function renderSlide(led) {
+  const i = Math.max(0, Math.min(led.slide || 0, SLIDES.length - 1));
+  const sl = SLIDES[i];
+  if (sl?.topics) { renderTopics(led, $('#slide')); $('#tag').innerHTML = 'MISSION'; return; }
+  const html = sl ? sl.html : '';
+  if ($('#slide').dataset.i !== String(i)) { $('#slide').innerHTML = html; $('#slide').dataset.i = String(i); }
+  $('#tag').innerHTML = sl?.tag || '';
+}
+
+let AC = null;
+const unlock = () => { try { AC ||= new AudioContext(); AC.resume(); } catch {} };
+addEventListener('pointerdown', unlock); addEventListener('keydown', unlock);
+function tone(freq, t0, dur, type = 'sine', vol = .25) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
+  o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + dur + .05);
+}
+function sfx(kind) {
+  if (!AC || EMBED) return;
+  const t = AC.currentTime;
+  if (kind === 'roll') {
+    const len = 2.6, buf = AC.createBuffer(1, AC.sampleRate * len, AC.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) { const x = i / AC.sampleRate; const hit = (x * (8 + x * 10)) % 1; d[i] = (Math.random() * 2 - 1) * Math.exp(-hit * 18) * (0.25 + x / len * 0.75); }
+    const src = AC.createBufferSource(), g = AC.createGain(), f = AC.createBiquadFilter();
+    f.type = 'bandpass'; f.frequency.value = 900; g.gain.value = .55;
+    src.buffer = buf; src.connect(f); f.connect(g); g.connect(AC.destination); src.start(t);
+  } else if (kind === 'pass') {
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, t + i * .09, 1.6, 'triangle', .22));
+    tone(1567.98, t + .4, 1.2, 'sine', .08);
+  } else if (kind === 'sub') {
+    tone(880, t, .5, 'sine', .22); tone(1318.5, t + .14, .7, 'sine', .18);
+  } else if (kind === 'fail') {
+    tone(110, t, 1.1, 'sawtooth', .22); tone(82.4, t + .05, 1.3, 'sine', .35);
+  }
+}
+
+let seenFlash = {};
+// team names stay on one line on the result screen: shrink long names instead of wrapping
+const fitName = (name, maxCqh = 13, widthCqw = 86) => {
+  const em = [...String(name || '')].reduce((a, ch) => a + (/[\x20-\x7e]/.test(ch) ? 0.6 : 1), 0) || 1;
+  return `font-size:min(${maxCqh}cqh,${(widthCqw / em).toFixed(2)}cqw)`;
+};
+
+function renderFlash(led) {
+  const f = led.flash;
+  const el = $('#flash');
+  // time the suspense from the moment this screen first sees the result, not from the server timestamp
+  if (f && !seenFlash[f.id]) seenFlash[f.id] = serverNow() - f.at > 30000 ? -1 : Date.now();
+  const seen = f ? seenFlash[f.id] : -1;
+  if (!f || seen === -1 || Date.now() - seen > 17000) { el.className = 'flash'; el.dataset.key = ''; return; }
+  const x = sub(f.teamId);
+  if (!x?.result) return;
+  const t = team(f.teamId);
+  const pass = x.result.result === 'pass';
+  const suspense = Date.now() - seen < 2800;
+  const key = f.id + (suspense ? 's' : 'r');
+  if (el.dataset.key === key) return;
+  el.dataset.key = key;
+  if (suspense) {
+    sfx('roll');
+    el.className = 'flash on suspense';
+    el.innerHTML = `<div class="pre">#${String(x.no).padStart(2, '0')} 심사 결과</div><div class="tname" style="${fitName(t.name)}">${esc(t.name)}</div><div class="members">${esc((t.members || []).join(' · '))}</div>`;
+    return;
+  }
+  sfx(pass ? 'pass' : 'fail');
+  const rem = S.counts.remaining ? `남은 자리 ${S.counts.remaining}` : `본선 ${S.config.capacity}팀 확정`;
+  el.className = `flash on ${pass ? 'pass' : 'fail'}`;
+  el.innerHTML = `${pass ? '<div class="rays"></div>' : ''}
+    <div class="stamp${x.result.revived ? ' rev' : ''}">${x.result.revived ? '<small>패자부활</small>본선 진출' : pass ? '본선 진출' : '탈락'}</div>
+    <div class="tname" style="${fitName(t.name, 11)}">${esc(t.name)}</div>
+    <div class="members">${esc((t.members || []).join(' · '))}</div>
+    <div class="svc"><b>${esc(x.serviceName)}</b> · ${esc(x.oneLiner)}</div>
+    <div class="tally num"><span style="color:var(--gold)">PASS ${x.result.pass}</span><span class="muted">:</span><span style="color:var(--red)">FAIL ${x.result.fail}</span></div>
+    ${(x.result.comments || []).length ? `<div class="comments">${x.result.comments.slice(0, 2).map(c => `<div>“${esc(c)}”</div>`).join('')}</div>` : ''}
+    <div class="rem">${pass ? `FINALIST ${x.passNo} / ${S.config.capacity} · ` : ''}${x.result.revived ? '1차 심사에서 PASS를 많이 받은 순 · ' : ''}${rem}</div>`;
+}
+
+function render() {
+  if (!S) return;
+  const led = ledState();
+  const scene = led.scene || 'board';
+  if (scene !== lastScene) show(scene);
+  ({ standby: renderStandby, board: renderBoard, topics: renderTopics, commits: renderCommits, missions: renderMissions, break: renderBreak, demo: renderDemo, match: renderMatch, announce: renderAnnounce, closing: renderClosing, slide: renderSlide })[scene]?.(led);
+  const tickerOn = false; // the commit ticker stays off the live board; commits have their own scene
+  $('#ticker').style.display = tickerOn ? 'flex' : 'none';
+  $('#board').classList.toggle('withticker', !!tickerOn);
+  const feedHtml = S.feed.slice(0, 20).map(f => `<span><b>${esc(f.team)}</b> ${esc(f.msg)} · ${ago(f.at)}</span>`).join('');
+  if (tickerOn && $('#track').dataset.h !== feedHtml) { $('#track').innerHTML = feedHtml; $('#track').dataset.h = feedHtml; }
+  renderFlash(led);
+}
+
+// the operator LED (with key) knows the mission list before the public reveal, so the mission slide can flip cards one click at a time
+let opTopics = null;
+if (KEY && !PREVIEW[0]) poll(async () => { if (!S?.config?.topicsRevealed || !opTopics) opTopics = (await api('/api/state?scope=admin', { key: KEY })).config.topics || []; }, 30000);
+let liveLed = null;
+if (KEY && !PREVIEW[0]) poll(async () => { if (['match', 'demo'].includes(S?.led?.scene || liveLed?.scene)) { const a = await api('/api/state?scope=admin', { key: KEY }); opMatches = a.matches || {}; if (S) { S.matchCount = a.matchCount; S.matchNeed = a.matchNeed; } } }, 2000);
+// only the operator screen polls this fast; the console's small preview checks less often
+if (KEY && !PREVIEW[0]) poll(async () => { liveLed = (await api('/api/led')).led; if (S) { S.led = liveLed; render(); } }, EMBED ? 3000 : 1000);
+// a new submission: chime + a 6-second banner on the live scenes (queued if several land together)
+let subIds = null; const bannerQ = []; let bannerBusy = false;
+function runBanner() {
+  if (bannerBusy || !bannerQ.length) return;
+  const x = bannerQ.shift();
+  const sc = ledState().scene;
+  if (!['board', 'commits', 'missions', 'break'].includes(sc)) return runBanner();
+  if ($('#flash').classList.contains('on')) { bannerQ.unshift(x); return setTimeout(runBanner, 2000); }
+  bannerBusy = true;
+  const t = S.teams.find(t => t.id === x.teamId);
+  const tp = (S.config.topics || []).find(o => o.id === t?.topic?.topic);
+  const vc = VCS.find(v => v.key === tp?.vc);
+  const mtitle = tp ? (tp.vc ? tp.title : '와일드카드 · 우리 팀의 아이디어') : '';
+  $('#subBanner').innerHTML = `<span class="k">NEW<br>SUBMISSION</span><b class="num">#${String(x.no).padStart(2, '0')}</b>
+    <div class="bcol"><div class="l1"><span class="tn">${esc(t?.name || '')}</span><span class="sv">${esc(x.serviceName || '')}</span></div>
+      ${tp ? `<div class="l2"><span class="ml">미션</span>${vc ? `<img src="${vc.logo}" style="height:${(2.4 * vc.h).toFixed(2)}cqh" alt="">` : ''}<span class="mt">${esc(mtitle)}</span></div>` : ''}</div>`;
+  $('#subBanner').classList.add('on');
+  setTimeout(() => { $('#subBanner').classList.remove('on'); setTimeout(() => { bannerBusy = false; runBanner(); }, 700); }, 6000);
+}
+function checkNewSubs() {
+  if (subIds === null) { subIds = new Set(S.subs.map(x => x.teamId)); return; }
+  const fresh = S.subs.filter(x => !subIds.has(x.teamId)).sort((a, b) => a.no - b.no);
+  if (!fresh.length) return;
+  fresh.forEach(x => { subIds.add(x.teamId); bannerQ.push(x); });
+  lastNewSubAt = Date.now(); render();
+  sfx('sub');
+  runBanner();
+}
+poll(async () => { S = await api('/api/state?scope=public'); if (liveLed) S.led = liveLed; if (opTopics?.length && !S.config.topics?.length) S.config.topics = opTopics; checkNewSubs(); }, 2000);
+poll(async () => { await fetch('/api/commits').catch(() => {}); }, 60000);
+setInterval(() => { $('#clock').textContent = hms(serverNow()); render(); }, 500);
+
+// keyboard / clicker control (only with ?key=)
+if (KEY) {
+  const setLed = patch => {
+    pending = Date.now() < pendingUntil ? { ...pending, ...patch } : { ...patch };
+    pendingUntil = Date.now() + 10000;
+    render();
+    // send in order so a fast clicker never lands out of sequence
+    queue = queue.then(() => api('/api/admin', { method: 'POST', key: KEY, body: { action: 'setLed', patch } })).catch(e => console.warn(e));
+    return queue;
+  };
+  let queue = Promise.resolve();
+  const scenes = ['standby', 'slide', 'topics', 'board', 'commits', 'break', 'demo', 'match', 'announce', 'closing'];
+  addEventListener('keydown', e => {
+    if (!S) return;
+    const led = ledState();
+    const fwd = ['ArrowRight', 'PageDown', ' ', 'ArrowDown'].includes(e.key), back = ['ArrowLeft', 'PageUp', 'ArrowUp'].includes(e.key);
+    if (/^[0-9]$/.test(e.key)) setLed({ scene: scenes[(Number(e.key) + 9) % 10] });
+    else if (fwd || back) {
+      const d = fwd ? 1 : -1;
+      if (led.scene === 'standby' && fwd) setLed({ scene: 'slide', slide: 0 });
+      else if (led.scene === 'slide') {
+        const patch = stepSlide(led, d, S.config.topics.length);
+        setLed(patch);
+        // reaching the mission slide opens topic declaration on the participant page
+        if (SLIDES[patch.slide ?? led.slide]?.topics && !S.config.topicsRevealed) api('/api/admin', { method: 'POST', key: KEY, body: { action: 'setConfig', patch: { topicsRevealed: true } } }).catch(() => {});
+      }
+      else if (led.scene === 'topics') setLed({ topicsShown: Math.max(0, Math.min((led.topicsShown ?? 0) + d, S.config.topics.length)) });
+      else if (led.scene === 'match') setLed({ matchShown: Math.max(0, (led.matchShown ?? 0) + d) });
+      else if (led.scene === 'demo') {
+        const demo = led.demo || {}, idx = demo.idx || 0;
+        const cur = stageLocal && Date.now() < stageLocal.until && stageLocal.idx === idx ? stageLocal : { view: demo.view || 'intro', page: demo.page || 0 };
+        if (cur.view === 'demo') return; // arrows belong to the demo itself
+        const page = cur.view === 'intro' ? 0 : Math.max(0, Math.min(cur.page + d, Math.max(stageN, 1) - 1));
+        stageLocal = { idx, view: 'slides', page, until: Date.now() + 4000 };
+        render();
+        api('/api/admin', { method: 'POST', key: KEY, body: { action: 'demo', op: 'view', view: 'slides', page } }).catch(e => console.warn(e));
+      }
+    } else if (e.key === 'f') document.documentElement.requestFullscreen?.();
+    else if (e.key === 'Escape' && led.flash) setLed({ flash: null });
+  });
+}
+
+// view-only slide browsing (/slides or ?preview=slide:N): arrows, clicker or a click step locally, nothing is written
+if (PREVIEW[0] === 'slide') {
+  const go = d => { PREVIEW[1] = String(Math.max(0, Math.min(Number(PREVIEW[1] || 0) + d, SLIDES.length - 1))); history.replaceState(null, '', `?preview=slide:${PREVIEW[1]}`); render(); };
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' ', 'ArrowDown', 'Enter'].includes(e.key)) go(1);
+    else if (['ArrowLeft', 'PageUp', 'ArrowUp'].includes(e.key)) go(-1);
+    else if (e.key === 'f') document.documentElement.requestFullscreen?.();
+  });
+  addEventListener('click', () => go(1));
+}
+</script>
+</body>
+</html>

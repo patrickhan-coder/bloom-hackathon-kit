@@ -1,0 +1,30 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+:root{
+  --bg:#120B08; --bg2:#1D120D; --bg3:#2A1A12; --ink:#FFF4E8; --muted:rgba(255,244,232,.62); --faint:rgba(255,244,232,.38);
+  --line:rgba(255,244,232,.14); --fire:#FF6A2B; --gold:#FFB547; --red:#E0402F; --kraft:#E8C49A; --pink:#FF8FA8; --ok:#5FD08A;
+  --font:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;word-break:keep-all;overflow-wrap:break-word}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer}
+input,textarea,select{font:inherit}
+/* light work-tool theme for judge/console */
+.tool{--bg:#F6F2EE;--bg2:#FFFFFF;--bg3:#EFE8E1;--ink:#1C1410;--muted:#6B5D53;--faint:#9C8E84;--line:#E4DAD1;background:var(--bg);color:var(--ink)}
+.tool .card{background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.btn{border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:10px;padding:8px 14px;font-weight:600}
+.btn:hover{border-color:var(--fire)}
+.btn.primary{background:var(--fire);border-color:var(--fire);color:#fff}
+.btn.pass{background:#1F9D55;border-color:#1F9D55;color:#fff}
+.btn.fail{background:#C8372A;border-color:#C8372A;color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;border:1px solid var(--line)}
+.st-queued{background:#EEE7E0;color:#6B5D53}.st-reviewing{background:#FFF1D6;color:#9A5A00}.st-pass{background:#DDF5E6;color:#14703C}.st-fail{background:#FBE1DE;color:#A1271C}.st-closed{background:#E6E6E6;color:#666}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:700;color:var(--muted)}
+.field input,.field textarea,.field select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg2);color:var(--ink)}
+.field textarea{min-height:70px;resize:vertical}
+.err{color:#C8372A;font-weight:600}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1C1410;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:999;max-width:90vw}

@@ -1,0 +1,355 @@
+{
+ "event": {
+  "name": "Bloom Hackathon",
+  "dateLabel": "2026.12.05",
+  "venue": "데모 빌딩 메인홀",
+  "partners": [
+   "Bloom",
+   "Partner A",
+   "Partner B"
+  ],
+  "channel": "#hackathon"
+ },
+ "capacity": 8,
+ "vcCount": 6,
+ "prize": {
+  "amount": "$5,000",
+  "label": "팀당 AI 크레딧"
+ },
+ "hero": null,
+ "photos": [],
+ "missions": [
+  {
+   "id": "t1",
+   "title": "1년 안에 전 세계 1억 명이 쓰는 컨슈머 AI",
+   "vc": "VC A"
+  },
+  {
+   "id": "t2",
+   "title": "한국의 엔터·게임 감각으로 미국 Personal Agent와 겨루는 서비스",
+   "vc": "VC B"
+  },
+  {
+   "id": "t3",
+   "title": "미국 RL Eval·데이터 회사가 돈 내고 쓸 서비스",
+   "vc": "VC B"
+  },
+  {
+   "id": "t4",
+   "title": "채팅창 다음의 인터페이스: 챗이 아닌 UI/UX, 또는 화면이 없는 제품",
+   "vc": "VC C"
+  },
+  {
+   "id": "t5",
+   "title": "AI로 사라질 직업 1,000만 명을 구할 제품",
+   "vc": "VC C"
+  },
+  {
+   "id": "t6",
+   "title": "해외 투자를 받고 싶은 한국 스타트업을 위한 리서치 에이전트",
+   "vc": "VC D"
+  },
+  {
+   "id": "t7",
+   "title": "K-뷰티·K-의료를 찾는 전 세계 소비자를 위한 서비스",
+   "vc": "VC F"
+  },
+  {
+   "id": "t8",
+   "title": "스테이블코인과 블록체인으로 만드는 글로벌 서비스",
+   "vc": "VC F"
+  },
+  {
+   "id": "t9",
+   "title": "제조업처럼 독점 데이터가 있는 버티컬에서 사람이 하던 일을 대체하는 AI",
+   "vc": "VC E"
+  },
+  {
+   "id": "wild",
+   "title": "와일드카드: 우리 팀의 아이디어 (해외 시장 명시)",
+   "vc": null
+  }
+ ],
+ "teams": [
+  {
+   "no": 1,
+   "m": "t1",
+   "team": "도토리랩",
+   "svc": "Dotori",
+   "one": "하루 3분, 내 말투로 답장을 대신 써 주는 메신저 키보드",
+   "status": "pass",
+   "p": 3,
+   "f": 1,
+   "vc": "VC C",
+   "cs": [
+    "기능은 좋은데 기존 키보드 앱이 금방 따라 할 수 있어 보여요.",
+    "말투 학습이 꽤 자연스러워요. 개인정보 동의 흐름은 꼭 다듬어야 해요.",
+    "1억 명이라는 미션에 가장 가까운 형태. 배포 채널 전략을 더 듣고 싶음.",
+    "매일 쓰는 키보드에 붙인 게 영리해요. 리텐션 숫자가 궁금해요."
+   ],
+   "links": {
+    "demo": "https://example.com/dotori",
+    "pdf": "/assets/demo/dotori.pdf",
+    "repo": "https://github.com/example/dotori"
+   }
+  },
+  {
+   "no": 2,
+   "m": "t5",
+   "team": "새벽세시",
+   "svc": "Night Shift",
+   "one": "야간 콜센터 상담원을 AI 상담 품질 관리자로 키우는 재교육 코치",
+   "status": "fail",
+   "p": 1,
+   "f": 3,
+   "vc": null,
+   "cs": [
+    "재교육 시장은 크지만 오늘 만든 범위가 좁아요.",
+    "현장 상담원 인터뷰를 했다는 점이 좋았어요.",
+    "BPO 업계에서 돈을 낼 사람이 누구인지가 불분명함.",
+    "문제 정의는 좋은데 데모에서 코칭이 실제로 어떻게 달라지는지 안 보였어요."
+   ],
+   "links": {
+    "demo": "https://example.com/saebyeok",
+    "pdf": "/assets/demo/saebyeok.pdf",
+    "repo": "https://github.com/example/saebyeok"
+   }
+  },
+  {
+   "no": 3,
+   "m": "t4",
+   "team": "반딧불",
+   "svc": "Glow",
+   "one": "말 대신 손짓과 표정으로 조작하는 화면 없는 AI 스탠드",
+   "status": "pass",
+   "p": 3,
+   "f": 0,
+   "vc": "VC B",
+   "cs": [
+    "데모 흐름이 짧고 분명해서 바로 이해됐어요.",
+    "채팅창이 아닌 인터페이스라는 미션을 정면으로 풀었어요.",
+    "하드웨어 없이 웹캠만으로 이 정도 반응 속도면 인상적임."
+   ],
+   "links": {
+    "demo": "https://example.com/bandit",
+    "pdf": "/assets/demo/bandit.pdf",
+    "repo": "https://github.com/example/bandit"
+   }
+  },
+  {
+   "no": 4,
+   "m": "t6",
+   "team": "종이비행기",
+   "svc": "Paperplane",
+   "one": "한국 스타트업 IR 자료를 미국 시드 VC가 읽는 형식으로 바꿔 주는 리서치 에이전트",
+   "status": "fail",
+   "p": 0,
+   "f": 3,
+   "vc": null,
+   "cs": [
+    "투자자 매칭 데이터가 없으면 리서치만으로는 부족해 보임.",
+    "결과물이 일반적인 요약 수준이라 차별점이 약해요.",
+    "타깃 VC 리스트를 직접 만들어 보면 훨씬 설득력 있을 것 같아요."
+   ],
+   "links": {
+    "demo": "https://example.com/paper-plane",
+    "pdf": "/assets/demo/paper-plane.pdf",
+    "repo": "https://github.com/example/paper-plane"
+   }
+  },
+  {
+   "no": 5,
+   "m": "t7",
+   "team": "주황고양이",
+   "svc": "SkinRoute",
+   "one": "피부 사진 한 장으로 한국 피부과 시술과 가격을 영어로 비교해 주는 앱",
+   "status": "pass",
+   "p": 3,
+   "f": 2,
+   "vc": null,
+   "cs": [
+    "데모 완성도가 높고 바로 써 보고 싶어요.",
+    "가격 비교는 규제 이슈가 있을 수 있어요.",
+    "진단처럼 보이는 표현은 조심해야 함.",
+    "의료관광 동선을 잘 이해하고 있어요. 병원 쪽 파트너십이 관건이에요.",
+    "외국인 리뷰 데이터를 어디서 가져올지 궁금하지만 방향은 좋아요."
+   ],
+   "links": {
+    "demo": "https://example.com/orange-cat",
+    "pdf": "/assets/demo/orange-cat.pdf",
+    "repo": "https://github.com/example/orange-cat"
+   }
+  },
+  {
+   "no": 6,
+   "m": "t2",
+   "team": "구름다리",
+   "svc": "Mate",
+   "one": "게임 속 동료처럼 말을 거는 일정 관리 에이전트",
+   "status": "pass",
+   "p": 3,
+   "f": 1,
+   "vc": null,
+   "cs": [
+    "리텐션 장치가 캐릭터에만 기대는 건 아닌지 걱정돼요.",
+    "게임 감각을 생산성 도구에 붙인 시도가 신선함.",
+    "미국 대학생이 타깃이면 디스코드 연동부터 하면 좋겠어요.",
+    "캐릭터 대사가 재밌어서 계속 쓰고 싶어져요."
+   ],
+   "links": {
+    "demo": "https://example.com/cloud-bridge",
+    "pdf": "/assets/demo/cloud-bridge.pdf",
+    "repo": "https://github.com/example/cloud-bridge"
+   }
+  },
+  {
+   "no": 7,
+   "m": "t8",
+   "team": "별똥별",
+   "svc": "Remit Star",
+   "one": "메신저에서 바로 스테이블코인으로 고향에 송금하는 지갑",
+   "status": "fail",
+   "p": 2,
+   "f": 3,
+   "vc": null,
+   "cs": [
+    "송금 수수료 비교가 명확해요.",
+    "타깃 고객을 정확히 정한 점은 좋았어요.",
+    "지갑 UX는 깔끔하지만 기존 송금 앱과 차이가 작아 보임.",
+    "규제와 환전 경로 설명이 부족해요.",
+    "현지 파트너 없이는 출금이 어려울 것 같아요."
+   ],
+   "links": {
+    "demo": "https://example.com/shooting-star",
+    "pdf": "/assets/demo/shooting-star.pdf",
+    "repo": "https://github.com/example/shooting-star"
+   }
+  },
+  {
+   "no": 8,
+   "m": "t3",
+   "team": "모래시계",
+   "svc": "Hourglass",
+   "one": "AI 에이전트 평가용 한국어 과제를 만들고 채점하는 플랫폼",
+   "status": "pass",
+   "p": 3,
+   "f": 0,
+   "vc": "VC E",
+   "cs": [
+    "데이터 품질 지표를 데모에서 보여준 게 좋았음.",
+    "채점 기준을 사람이 검수하는 흐름이 잘 잡혀 있어요.",
+    "바로 고객이 떠오르는 제품이에요. 가격 모델만 정하면 될 것 같아요."
+   ],
+   "links": {
+    "demo": "https://example.com/hourglass",
+    "pdf": "/assets/demo/hourglass.pdf",
+    "repo": "https://github.com/example/hourglass"
+   }
+  },
+  {
+   "no": 9,
+   "m": "t9",
+   "team": "솔방울",
+   "svc": "Pinecone QA",
+   "one": "공장 검사 기록을 읽고 불량 원인부터 짚어 주는 품질 관리 에이전트",
+   "status": "pass",
+   "p": 3,
+   "f": 1,
+   "vc": null,
+   "cs": [
+    "독점 데이터가 있는 버티컬을 정확히 골랐어요.",
+    "품질 관리자 입장에서 바로 쓸 만한 화면이에요.",
+    "실제 공장 데이터 없이 만든 한계가 보여요.",
+    "도입을 결정하는 사람이 누구인지 다음엔 꼭 확인해 보세요."
+   ],
+   "links": {
+    "demo": "https://example.com/pinecone",
+    "pdf": "/assets/demo/pinecone.pdf",
+    "repo": "https://github.com/example/pinecone"
+   }
+  },
+  {
+   "no": 10,
+   "m": "wild",
+   "team": "초록신호",
+   "svc": "Greenlight",
+   "one": "횡단보도 신호를 음성으로 알려 주는 시각장애인 길 안내",
+   "status": "pass",
+   "p": 3,
+   "f": 2,
+   "vc": null,
+   "cs": [
+    "오늘 하루에 만든 결과물로는 완성도가 높아요.",
+    "공공 데이터 의존도가 높아 국가별 확장이 어려울 수 있어요.",
+    "수익 모델이 아직 안 보여요.",
+    "당사자 인터뷰가 있으면 훨씬 강해질 것 같아요.",
+    "와일드카드인데 타깃 시장이 분명해서 좋았어요."
+   ],
+   "links": {
+    "demo": "https://example.com/green-light",
+    "pdf": "/assets/demo/green-light.pdf",
+    "repo": "https://github.com/example/green-light"
+   }
+  },
+  {
+   "no": 11,
+   "m": "t1",
+   "team": "달팽이레이싱",
+   "svc": "Snail Mail",
+   "one": "읽기 싫은 뉴스레터를 출근길 3분 오디오로 바꿔 주는 앱",
+   "status": "pass",
+   "p": 3,
+   "f": 0,
+   "vc": null,
+   "cs": [
+    "경쟁 서비스가 많아서 배포 전략이 핵심일 것 같아요.",
+    "오디오 품질이 생각보다 좋아요.",
+    "매일 쓰는 습관을 만들 수 있는 제품이에요."
+   ],
+   "links": {
+    "demo": "https://example.com/snail",
+    "pdf": "/assets/demo/snail.pdf",
+    "repo": "https://github.com/example/snail"
+   }
+  },
+  {
+   "no": 12,
+   "m": "t5",
+   "team": "느린거북",
+   "svc": "Second Act",
+   "one": "은퇴한 숙련 기술자의 노하우를 AI 튜터로 남기는 서비스",
+   "status": "closed",
+   "p": null,
+   "f": null,
+   "vc": null,
+   "cs": [
+    "숙련 기술을 남긴다는 문제 의식이 좋아요.",
+    "튜터 품질을 어떻게 검증할지 더 보고 싶어요."
+   ],
+   "links": {
+    "demo": "https://example.com/slow-turtle",
+    "pdf": "/assets/demo/slow-turtle.pdf",
+    "repo": "https://github.com/example/slow-turtle"
+   }
+  },
+  {
+   "no": 13,
+   "m": "t4",
+   "team": "유리구두",
+   "svc": "Beam",
+   "one": "말하는 동안 AI가 알아서 슬라이드를 넘겨 주는 발표 도우미",
+   "status": "closed",
+   "p": null,
+   "f": null,
+   "vc": null,
+   "cs": [
+    "화면이 없는 제품이라는 미션에 잘 맞는 아이디어예요."
+   ],
+   "links": {
+    "demo": "https://example.com/glass-shoe",
+    "pdf": "/assets/demo/glass-shoe.pdf",
+    "repo": "https://github.com/example/glass-shoe"
+   }
+  }
+ ]
+}

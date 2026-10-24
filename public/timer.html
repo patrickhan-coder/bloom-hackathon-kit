@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무대 타이머</title><link rel="stylesheet" href="/assets/common.css">
+<style>
+ html,body{height:100%;overflow:hidden}
+ body{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2vh}
+ .team{font-size:7vh;font-weight:900}
+ .phase{font-size:4vh;font-weight:800;color:var(--kraft);letter-spacing:.1em}
+ .t{font-size:38vh;font-weight:900;line-height:1}
+ .t.warn{color:var(--gold)}.t.over{color:var(--red);animation:b 1s infinite}
+ @keyframes b{50%{opacity:.4}}
+ .next{font-size:3vh;color:var(--muted)}
+</style></head>
+<body><div class="phase" id="ph"></div><div class="t num" id="t">--:--</div><div class="team" id="team"></div><div class="next" id="next"></div>
+<script type="module">
+import { api, poll, serverNow, dur, $ } from '/assets/common.js';
+let S = null;
+poll(async () => { S = await api('/api/state?scope=public'); }, 1500);
+setInterval(() => {
+  if (!S) return;
+  const d = { order: S.passList, idx: 0, ...(S.led.demo || {}) }, order = d.order?.length ? d.order : S.passList;
+  const name = id => S.teams.find(t => t.id === id)?.name || '';
+  $('#team').textContent = name(order[d.idx]);
+  $('#next').textContent = order[d.idx + 1] ? `다음 · ${name(order[d.idx + 1])}` : '';
+  let l = null;
+  if (d.endsAt) l = d.endsAt - serverNow(); else if (d.left != null) l = d.left;
+  $('#ph').textContent = d.phase === 'qa' ? 'Q&A · 질의응답' : d.phase === 'pitch' ? 'PITCH · 발표' : '대기';
+  const el = $('#t');
+  if (l == null) { el.textContent = '--:--'; el.className = 't num'; return; }
+  el.textContent = l < 0 ? '+' + dur(-l, false) : dur(l, false);
+  el.className = 't num ' + (l < 0 ? 'over' : l < 30000 ? 'warn' : '');
+}, 250);
+</script></body></html>

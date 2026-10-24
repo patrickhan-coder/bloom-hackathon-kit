@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VC 심사</title>
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+  body{font-size:15px;height:100vh;display:flex;flex-direction:column;margin:0}
+  body>.top,body>.rule{flex:none}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;background:#1C1410;color:#fff}
+  .top .me{display:flex;align-items:center;gap:12px}
+  .top img{filter:none}
+  .vcchip{display:flex;align-items:center;gap:12px;padding:7px 16px;border:1px solid rgba(255,255,255,.18);border-radius:999px;margin-left:6px}
+  .vcchip i{width:1px;height:22px;background:rgba(255,255,255,.25)}
+  .vcchip b{font-size:16px;font-weight:800;color:#fff} .vcchip span{font-size:14px;color:rgba(255,255,255,.7)}
+  .dguide{margin:14px 0 4px;padding:12px 16px;border-radius:12px;background:#FFF3E6;white-space:pre-wrap;line-height:1.6;font-size:15px;max-height:42vh;overflow:auto} .dguide b{display:block;font-size:12px;color:var(--fire);margin-bottom:4px}
+  .guide{max-width:820px;line-height:1.7;font-size:15px}
+  .guide h2{font-size:22px;margin:0 0 6px} .guide .flow{color:var(--fire);font-weight:700;margin:0 0 14px}
+  .guide ol{padding-left:20px;margin:10px 0 16px} .guide li{margin:6px 0}
+  .guide .ask{padding:12px 16px;border-radius:12px;background:#FFF3E6;font-weight:600}
+  .tabs{display:flex;gap:6px}
+  .tabs .btn{background:#2c211b;color:#fff;border-color:#4a3a30}
+  .tabs .btn.on{background:var(--fire);border-color:var(--fire)}
+  .rule{padding:10px 20px;background:#FFF4E2;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6}
+  .layout{display:grid;grid-template-columns:330px 1fr;flex:1;min-height:0}
+  .list{border-right:1px solid var(--line);overflow:auto;background:var(--bg2)}
+  .item{padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer}
+  .item:hover{background:var(--bg3)}.item.sel{background:#FFF1E6;border-left:4px solid var(--fire)}
+  .item .t{font-weight:800}.item .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .need{background:var(--fire);color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:2px 8px;margin-left:6px}
+  .detail{overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+  .head h1{font-size:26px}.head .m{color:var(--muted)}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 20px;font-size:14px}
+  .facts b{display:block;font-size:12px;color:var(--muted)}
+  .links{display:flex;gap:8px;flex-wrap:wrap}
+  .pdf{width:100%;height:62vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .vote{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .dwrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+  .dmain{min-width:0;display:flex;flex-direction:column;gap:14px}
+  .dside{position:sticky;top:0}
+  .dside .vote .row{flex-direction:column} .dside .vote .row .btn{padding:16px}
+  @media (max-width:1199px){.dwrap{grid-template-columns:1fr}.dside{position:static}.dside .vote .row{flex-direction:row}}
+  .vote .row{display:flex;gap:10px}
+  .vote .btn{flex:1;padding:14px;font-size:16px}
+  .vote .btn.sel{outline:3px solid #1C1410}
+  .flag{background:#FFE4C2;color:#9A4A00;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700}
+  .empty{padding:40px;color:var(--muted)}
+  .mcard{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);display:flex;align-items:center;gap:12px;cursor:pointer}
+  .mcard.sel{border-color:var(--fire);background:#FFF1E6}
+  .ofx{display:flex;flex-direction:column;gap:14px;max-width:860px}
+  .ofx .st{font-size:13px;font-weight:800;letter-spacing:.06em;color:var(--fire)}
+  .ofx .tm{font-size:30px;font-weight:900;line-height:1.2}
+  .ofx .sv{font-size:15px;color:var(--muted)}
+  .ofx .btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .obtn{padding:26px 16px;border-radius:14px;border:2px solid var(--line);background:var(--bg2);font-size:19px;font-weight:900;cursor:pointer;text-align:center}
+  .obtn.yes.sel{background:var(--fire);border-color:var(--fire);color:#fff}
+  .obtn.no.sel{background:#2c211b;border-color:#2c211b;color:#fff}
+  .ofx .box{padding:18px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);font-size:17px;line-height:1.5}
+  .ofx .box.ok{border:2px solid var(--fire);background:#FFF1E6}
+  .ofx .foot{font-size:13px;color:var(--muted);line-height:1.6}
+  @media (max-width:760px){ .ofx .btns{grid-template-columns:1fr} .ofx .tm{font-size:24px} }
+  .pitch{margin:16px 0 4px} .pitch .svc{font-size:22px;font-weight:800;letter-spacing:-.01em} .pitch .one{font-size:17px;line-height:1.6;margin-top:4px}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px} .tags span{padding:5px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px}
+  .tags .warn{background:#FFE9E2;border-color:#F3B9A6;color:#B4471F;font-weight:700}
+  .links.big{margin-top:14px} .links.big .btn{padding:12px 20px;font-size:15px}
+  .vote .lb{display:block;font-size:14px;font-weight:700;margin-top:12px} .vote .lb span{font-weight:500;color:var(--muted);margin-left:6px;font-size:13px}
+  .vote textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:15px;line-height:1.5;resize:vertical;background:#fff}
+  .more{margin-top:18px;border-top:1px solid var(--line);padding-top:12px} .more summary{cursor:pointer;color:var(--muted);font-size:14px}
+  .more .facts{margin-top:12px;gap:12px 24px;font-size:15px}
+  .pdfnote{display:none;font-size:13px;color:var(--muted)}
+  @media (max-width:760px){
+    body{height:auto;display:block}
+    .top{flex-wrap:wrap;padding:10px 12px;gap:8px}
+    .top .me{flex-wrap:wrap;gap:8px} .top .me>b{font-size:14px}
+    .vcchip{padding:5px 10px;gap:8px;margin-left:0} .vcchip b{font-size:14px} .vcchip>span{display:none}
+    .tabs{width:100%} .tabs .btn{flex:1;padding:8px 4px;font-size:13px}
+    .rule{font-size:12px;padding:8px 12px}
+    .layout{display:block}
+    .list{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch}
+    .list .item{flex:0 0 auto;width:72vw;max-width:300px;border-bottom:0;border-right:1px solid var(--line)}
+    .list .empty{padding:16px}
+    .detail{overflow:visible;padding:14px}
+    .head h1{font-size:22px}
+    .pitch .svc{font-size:19px} .pitch .one{font-size:15px}
+    #dPdf{display:none} .pdfnote{display:block}
+    .links.big .btn{flex:1;text-align:center;padding:12px 10px}
+    .facts,.more .facts{grid-template-columns:1fr}
+    .guide{font-size:14px} .guide h2{font-size:19px}
+    #matchview{padding:16px!important}
+  }
+</style>
+</head>
+<body class="tool">
+<div class="top">
+  <div class="me"><b id="brand">VC 심사</b><span id="me"></span></div>
+  <div class="tabs"><button class="btn" id="guideBtn">심사 가이드</button><button class="btn on" data-tab="review">1차 심사</button><button class="btn" data-tab="match">샤크탱크 제안</button></div>
+</div>
+<div class="rule" id="rule"></div>
+<div class="layout" id="review">
+  <div class="list" id="list"></div>
+  <div class="detail" id="detail"><div class="empty">왼쪽에서 팀을 고르세요. 새 제출이 오면 목록 맨 위에 표시돼요.</div></div>
+</div>
+<div id="matchview" style="display:none;padding:24px 24px 48px;max-width:none;min-height:calc(100vh - 110px);background:var(--bg)"><!-- offers --></div>
+<script type="module">
+import { api, poll, hm, hms, ago, esc, VCS, EVENT, toast, STATUS_KO, $ } from '/assets/common.js';
+const K = new URLSearchParams(location.search).get('k');
+$('#brand').textContent = `${EVENT.name} · VC 심사`;
+let showGuide = false;
+// first-visit guide: the day's times and numbers come from the live config and assets/event.js
+const guide = () => {
+  const c = S?.config || {}, th = c.threshold, cap = c.capacity, D = EVENT.discord || {};
+  const flow = [[c.buildStart, '개발 시작'], [c.topicDeadline, '주제 선언 마감'], [c.submitDeadline, '제출 마감'], [EVENT.times?.sharkTank, '샤크탱크'], [EVENT.times?.matching, '매칭']]
+    .filter(([t]) => t).map(([t, n]) => `${hm(t)} ${n}`).join(' → ');
+  return `<div class="guide"><h2>처음 오셨다면 이것만 보시면 돼요</h2>
+  <div class="flow">${flow}</div>
+  <div>${S?.teams?.length ? `${S.teams.length}팀이 ` : ''}VC ${VCS.length}곳이 낸 미션(또는 와일드카드) 중 하나를 골라 오늘 현장에서 만들어요. 저녁 샤크탱크에 오르는 본선은 ${cap}자리예요.</div>
+  <ol>
+    <li>팀이 제출하면 왼쪽 목록 맨 위에 떠요. 알림음과 탭 제목의 숫자로도 알려 드려요.</li>
+    <li>팀마다 <b>데모 링크</b>와 <b>발표자료 PDF${EVENT.pitchPages ? ` ${EVENT.pitchPages}장` : ''}</b>이 와요. 이 두 가지를 보고 판단해 주세요. 팀이 적은 "데모 사용법"에 무엇부터 눌러 보면 되는지 나와 있어요. GitHub 레포와 커밋 기록은 참고용이에요.</li>
+    <li>기준은 하나예요. <b>"이 팀과 후속 미팅을 하고 싶은가?"</b> PASS 또는 FAIL을 고르고 "판단 제출"을 눌러 주세요.</li>
+    <li>한줄평은 VC 이름 없이 현장 화면에 공개되고, 메모는 운영진만 봐요.</li>
+    <li>VC ${th}곳이 PASS하면 본선, ${th}곳이 FAIL하면 탈락이에요. 결과는 현장 화면과 디스코드에 자동 발표돼요. FAIL은 정해지면 바로, 본선(PASS)은 제출 순서대로 발표되고 본선 ${cap}자리도 제출 순서대로 채워져요. 결정된 팀은 더 투표할 수 없어요.</li>
+    <li>커밋 기록에 "${hm(c.buildStart)} 전 커밋" 표시가 있으면 기존 코드를 썼을 수 있다는 뜻이에요. 판단에 참고해 주세요.</li>
+    <li>${EVENT.times?.sharkTank ? `${hm(EVENT.times.sharkTank)} ` : ''}샤크탱크${EVENT.sharkTank?.format ? `(${esc(EVENT.sharkTank.format)})` : ''}에서는 팀마다 질의응답이 끝나면 위쪽 "샤크탱크 제안" 탭이 열려요. 이 팀과 후속 미팅을 하고 싶으면 <b>만나고 싶어요</b>, 아니면 <b>패스</b>를 눌러 주세요. 여러 VC가 손을 들면 팀이 한 곳을 골라요.</li>
+  </ol>
+  ${D.ops ? `<div class="ask">모르는 게 있으면 디스코드 <b>${esc(D.ops)}</b>에 바로 남겨 주세요. 운영진이 바로 답해 드려요.${D.invite ? ` 아직 안 들어오셨다면 <a href="${esc(D.invite)}" target="_blank">여기</a>로 들어와 주세요.` : ''}</div>` : ''}</div>`;
+};
+let S = null, sel = null, seen = new Set(), first = true, draft = {};
+const myVc = () => VCS.find(v => v.key === S?.vc);
+
+// the rule bar is drawn once the config arrives (and again only if the threshold or the build start changes, so the details stay open)
+let ruleKey = '';
+function renderRule() {
+  const th = S.config.threshold, start = hm(S.config.buildStart), k = `${th}|${start}`;
+  if (ruleKey === k) return;
+  ruleKey = k;
+  $('#rule').innerHTML = `<b>규칙</b> · 제출 순서대로 봐 주세요. VC ${th}곳이 PASS하면 본선, ${th}곳이 FAIL하면 탈락이고, 결과는 현장 화면과 디스코드에 자동으로 발표돼요. FAIL은 정해지면 바로, <b>본선(PASS)은 제출 순서대로</b> 발표되니 목록 위에서부터 봐 주세요.
+  기준은 하나예요. <b>"이 팀과 후속 미팅을 하고 싶은가?"</b> · 한줄평은 VC 이름 없이 화면에 공개되고, 메모는 운영진만 봐요.
+  <details style="display:inline"><summary style="display:inline;cursor:pointer;color:var(--fire)">커밋 기록은 왜 보나요?</summary>
+  오늘 ${start} 이후에 만든 것만 심사하기로 했어요. 모든 팀은 공개 GitHub 레포를 쓰고, 커밋 기록이 모두에게 공개돼요. 첫 커밋이 ${start} 이전이거나 첫 커밋에 코드가 한꺼번에 많이 들어온 경우 표시해 드려요. 템플릿으로 시작해도 커질 수 있으니 판단 참고용으로만 봐 주세요.</details>`;
+}
+
+// submission-order window (changed on the day, 16:25): each VC votes on the earliest 3 teams still waiting for their judgment
+const WINDOW = 3;
+const myQueue = () => S.subs.filter(x => !x.mine && !x.decided && (x.status === 'queued' || x.status === 'reviewing')).sort((a, b) => a.no - b.no);
+const canVote = x => x.mine || myQueue().slice(0, WINDOW).some(y => y.teamId === x.teamId);
+
+function badge(x) {
+  if (x.status === 'pass' || x.status === 'fail' || x.status === 'closed') return `<span class="chip st-${x.status}">${STATUS_KO[x.status]}</span>`;
+  if (x.decided) return `<span class="chip st-reviewing">결정됨 · 곧 결과 공개</span>`;
+  if (!x.mine) return canVote(x) ? `<span class="need">내 판단 필요</span>` : `<span class="chip">순서 대기</span>`;
+  return `<span class="chip st-reviewing">${x.voters}/${S.vcs.length} 투표</span>`;
+}
+
+function renderList() {
+  const order = x => (x.status === 'queued' || x.status === 'reviewing') && !x.decided ? (x.mine ? 1 : 0) : 2;
+  const subs = [...S.subs].sort((a, b) => order(a) - order(b) || a.no - b.no);
+  $('#list').innerHTML = subs.map(x => `<div class="item ${sel === x.teamId ? 'sel' : ''}" data-id="${x.teamId}">
+    <div class="t">#${String(x.no).padStart(2, '0')} ${esc(S.teams.find(t => t.id === x.teamId)?.name)} ${badge(x)}</div>
+    <div class="s">${esc(x.serviceName)} · ${hm(x.at)} 제출</div></div>`).join('') || '<div class="empty">아직 제출이 없어요.</div>';
+  const need = S.subs.filter(x => !x.mine && !x.decided && (x.status === 'queued' || x.status === 'reviewing')).length;
+  document.title = (need ? `(${need}) ` : '') + `${EVENT.short} VC 심사`;
+}
+
+let shownSel = undefined;
+const patch = (el, html) => { if (el && el.dataset.h !== html) { el.dataset.h = html; el.innerHTML = html; } };
+function renderDetail() {
+  const x = S.subs.find(y => y.teamId === sel);
+  if (showGuide || !x) { if (shownSel !== 'guide') { $('#detail').innerHTML = guide(); shownSel = 'guide'; } return; }
+  if (shownSel !== sel) {
+    $('#detail').innerHTML = `<div class="dwrap"><div class="dmain"><div id="dHead"></div><div id="dPdf"></div><div id="dMore"></div></div><aside class="dside"><div class="vote" id="dVote"></div></aside></div>`;
+    shownSel = sel;
+  }
+  const t = S.teams.find(y => y.id === x.teamId) || {};
+  const d = draft[x.teamId] || { vote: x.mine?.vote, comment: x.mine?.comment || '', memo: x.mine?.memo || '' };
+  draft[x.teamId] = d;
+  const locked = x.decided || ['pass', 'fail', 'closed'].includes(x.status);
+  patch($('#dHead'), `
+    <div class="head"><div class="mini">#${String(x.no).padStart(2, '0')} · ${hms(x.at)} 제출 · ${badge(x)} · ${x.decided ? '결정됨' : `${x.voters}/${S.vcs.length}곳 투표`}</div><h1>${esc(t.name)}</h1><div class="m">${esc((t.members || []).join(' · '))}</div></div>
+    <div class="pitch">
+      <div class="svc">${esc(x.serviceName)}</div>
+      <div class="one">${esc(x.oneLiner)}</div>
+      <div class="tags"><span>미션 · ${esc(S.config.topics.find(y => y.id === t.topic?.topic)?.title || '')}</span><span>타깃 · ${esc(x.market)}</span>${(x.flags || []).map(f => `<span class="warn">${{ early: `${hm(S.config.buildStart)} 전 커밋 있음`, bulk: '첫 커밋이 대량', history: '기존 커밋 20개 이상' }[f] || f}</span>`).join('')}</div>
+    </div>
+    ${x.demoGuide ? `<div class="dguide"><b>데모 사용법</b>${esc(x.demoGuide)}</div>` : ''}
+    <div class="links big"><a class="btn primary" href="${esc(x.demoUrl)}" target="_blank">데모 열기</a><a class="btn" href="${esc(x.pdfUrl)}" target="_blank">발표자료 PDF 새 창</a></div>
+    <div class="pdfnote">휴대폰에서는 발표자료를 "PDF 새 창"으로 열어 주세요.</div>`);
+  // the slides stay put while polls come in: only a different file replaces the iframe
+  const pdfEl = $('#dPdf');
+  if (pdfEl.dataset.src !== (x.pdfUrl || '')) { pdfEl.dataset.src = x.pdfUrl || ''; pdfEl.innerHTML = x.pdfUrl ? `<iframe class="pdf" src="${esc(x.pdfUrl)}#view=FitH"></iframe>` : ''; }
+  const active = document.activeElement;
+  const waitTurn = !locked && !canVote(x);
+  if (!(active && (active.id === 'cm' || active.id === 'memo'))) patch($('#dVote'), waitTurn
+    ? `<div><b>앞 순서 팀을 먼저 심사해 주세요.</b><div class="mini" style="margin-top:6px">결과는 제출 순서대로 발표돼서, 먼저 제출한 팀부터 봐 주셔야 해요. 지금 심사할 차례: ${myQueue().slice(0, WINDOW).map(y => '#' + String(y.no).padStart(2, '0') + ' ' + esc(S.teams.find(t => t.id === y.teamId)?.name || '')).join(', ')}</div></div>`
+    : locked
+    ? `<div><b>${x.status === 'closed' ? '본선이 마감돼 심사가 끝났어요.' : '결정된 팀이에요.'}</b> ${x.mine ? `내 판단: ${x.mine.vote.toUpperCase()}` : ''}</div>`
+    : `<div class="row"><button class="btn pass ${d.vote === 'pass' ? 'sel' : ''}" data-vote="pass">PASS · 미팅하고 싶다</button><button class="btn fail ${d.vote === 'fail' ? 'sel' : ''}" data-vote="fail">FAIL</button></div>
+      <label class="lb">한줄평 <span>선택 · 현장 화면에 VC 이름 없이 공개돼요</span></label>
+      <textarea id="cm" maxlength="140" rows="2" placeholder="예) 미국 프리랜서 시장을 정확히 짚었어요">${esc(d.comment)}</textarea>
+      <label class="lb">메모 <span>선택 · 운영진만 봐요</span></label>
+      <textarea id="memo" maxlength="400" rows="3" placeholder="후속 미팅 때 물어볼 것, 걱정되는 점 등">${esc(d.memo)}</textarea>
+      <button class="btn primary" id="send" ${d.vote ? '' : 'disabled'}>${x.mine ? '판단 수정' : '판단 제출'}</button>`);
+  patch($('#dMore'), `<details class="more"><summary>참고 정보 · 오늘 만든 것, 커밋 기록, GitHub</summary>
+      <div class="facts">
+        <div><b>오늘 새로 만든 것</b>${esc(x.builtToday)}</div>
+        <div><b>커밋</b>${t.commits ? `${t.commits.count}${t.commits.countPlus ? '+' : ''}개 · 첫 커밋 ${hms(t.commits.firstAt)}` : '정보 수집 중'}</div>
+        ${x.decided ? `<div><b>투표 결과</b>${x.votes.map(v => `${VCS.find(y => y.key === v.vc)?.name}: ${String(v.vote || '').toUpperCase()}`).join(' · ')}</div>` : ''}
+      </div>
+      ${t.topic?.repo ? `<div class="links" style="margin-top:12px"><a class="btn" href="${esc(t.topic.repo)}${x.repoSha ? '/tree/' + x.repoSha : ''}" target="_blank">GitHub (제출 시점)</a><a class="btn" href="${esc(t.topic.repo)}/commits" target="_blank">커밋 기록</a></div>` : ''}
+    </details>`);
+}
+
+// per-team offers: after each Q&A the VCs still unmatched say yes or pass to the team on stage
+let offerSeen = '', firstShow = true;
+function renderMatch() {
+  const led = S.led || {}, tm = led.teamMatch || {}, offer = led.offer || null;
+  const nameOf = id => S.teams.find(t => t.id === id)?.name || id;
+  const svcOf = id => S.subs.find(s => s.teamId === id)?.serviceName || '';
+  const order = led.demo?.order?.length ? led.demo.order : S.passList;
+  const onStage = order[led.demo?.idx || 0];
+  const mine = new Set(S.myMatches || []);
+  const myTeams = Object.keys(tm).filter(t => tm[t] === S.vc).map(nameOf);
+  let html;
+  if (offer?.open && !tm[offer.teamId]) {
+    const yes = mine.has(offer.teamId), pass = S.mySubmitted && !yes;
+    html = `<div class="st">지금 제안을 받고 있어요</div>
+      <div><div class="tm">${esc(nameOf(offer.teamId))}</div><div class="sv">${esc(svcOf(offer.teamId))}</div></div>
+      <div class="btns"><div class="obtn yes ${yes ? 'sel' : ''}" data-m="${offer.teamId}">만나고 싶어요</div><div class="obtn no ${pass ? 'sel' : ''}" data-m="">패스</div></div>
+      <div class="foot">사회자가 마감하기 전까지 바꿀 수 있어요. 여러 VC가 손을 들면 팀이 한 곳을 골라요.</div>`;
+  } else if (offer?.teamId && tm[offer.teamId]) {
+    html = `<div class="st">매칭 확정</div><div class="box ${tm[offer.teamId] === S.vc ? 'ok' : ''}"><b>${esc(nameOf(offer.teamId))}</b> 팀은 <b>${esc(S.vcs.find(v => v.key === tm[offer.teamId])?.name || '')}</b>와(과) 후속 미팅이 확정됐어요.</div>`;
+  } else if (offer?.shown) {
+    const yes = mine.has(offer.teamId);
+    html = `<div class="st">마감됐어요</div><div class="box"><b>${esc(nameOf(offer.teamId))}</b> · ${yes ? '제안하셨어요. 현장에서 팀의 선택을 기다려 주세요.' : '이번 팀은 패스하셨어요.'}</div>`;
+  } else html = `<div class="st">지금 발표 중</div><div><div class="tm">${esc(nameOf(onStage))}</div><div class="sv">${esc(svcOf(onStage))}</div></div>
+      <div class="box">질의응답이 끝나면 이 화면에서 <b>만나고 싶어요 / 패스</b>를 눌러 주세요.</div>`;
+  $('#matchview').innerHTML = `<div class="ofx">${html}
+    <div class="foot">한 VC가 여러 팀과 매칭될 수 있어요.${myTeams.length ? ` 내 매칭: <b>${myTeams.map(esc).join(', ')}</b>` : ''}</div></div>`;
+  const evening = ['demo', 'match'].includes(led.scene) || offer;
+  const fresh = offer?.open && offerSeen !== offer.teamId + offer.at;
+  if ((firstShow && evening) || fresh) {
+    document.querySelector('[data-tab="match"]')?.click();
+    if (fresh) { try { const c = new AudioContext(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 660; g.gain.value = .08; o.start(); o.stop(c.currentTime + .25); } catch {} }
+  }
+  if (evening) firstShow = false;
+  if (offer?.open) offerSeen = offer.teamId + offer.at;
+}
+
+// who this judge link belongs to, so each VC can confirm it's their own screen (person and title from assets/event.js)
+const PERSON = Object.fromEntries(VCS.filter(v => v.person).map(v => [v.key, `${v.person} 님${v.title ? ' · ' + v.title : ''}`]));
+
+function render() {
+  if (!S) return;
+  const v = myVc();
+  $('#me').innerHTML = v ? `<span class="vcchip"><img src="${v.logo}" style="height:${Math.round(22 * (v.h || 1))}px" alt=""><i></i><b>${esc(PERSON[v.key] || v.name)}</b><span>${esc(v.name)} 심사 화면</span></span>` : '';
+  renderRule();
+  // auto-select first pending; beep on new submissions
+  const ids = S.subs.map(x => x.teamId);
+  const fresh = ids.filter(id => !seen.has(id));
+  if (!first && fresh.length) { try { new AudioContext().resume().then(function () { const c = new AudioContext(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .08; o.start(); o.stop(c.currentTime + .25); }); } catch {} toast(`새 제출 ${fresh.length}건`); }
+  fresh.forEach(id => seen.add(id)); first = false;
+  if (!sel) sel = myQueue()[0]?.teamId || S.subs[0]?.teamId || null;
+  renderList();
+  renderDetail();
+  renderMatch();
+}
+
+poll(async () => { S = await api(`/api/state?scope=judge&k=${encodeURIComponent(K)}`); render(); }, 2500);
+
+document.addEventListener('click', async e => {
+  const it = e.target.closest('.item'); if (it) { showGuide = false; sel = it.dataset.id; renderList(); renderDetail(); if (innerWidth <= 760) $('#detail').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (e.target.id === 'guideBtn') { showGuide = true; renderDetail(); return; }
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b === tab)); const m = tab.dataset.tab === 'match'; $('#review').style.display = m ? 'none' : 'grid'; $('#matchview').style.display = m ? 'block' : 'none'; $('#rule').style.display = m ? 'none' : 'block'; if (m) renderMatch(); return; }
+  const vb = e.target.closest('[data-vote]');
+  if (vb) { draft[sel].vote = vb.dataset.vote; draft[sel].comment = $('#cm').value; draft[sel].memo = $('#memo').value; document.activeElement?.blur?.(); renderDetail(); return; }
+  if (e.target.id === 'send') {
+    const d = draft[sel]; d.comment = $('#cm').value; d.memo = $('#memo').value;
+    try { await api('/api/vote', { method: 'POST', body: { k: K, teamId: sel, ...d } }); toast('판단을 보냈어요'); S = await api(`/api/state?scope=judge&k=${encodeURIComponent(K)}`); sel = myQueue()[0]?.teamId || sel; render(); renderDetail(); }
+    catch (err) { toast(err.message, 4000); }
+    return;
+  }
+  const mc = e.target.closest('[data-m]');
+  if (mc) {
+    const led = S.led || {};
+    if (!led.offer?.open) return;
+    const ids = mc.dataset.m ? [mc.dataset.m] : [];
+    try { const r = await api('/api/match', { method: 'POST', body: { k: K, teamIds: ids } }); S.myMatches = r.teamIds; S.mySubmitted = true; renderMatch(); toast(ids.length ? '저장했어요' : '이번 라운드는 고르지 않기로 했어요'); } catch (err) { toast(err.message, 4000); }
+  }
+});
+document.addEventListener('input', e => { if (sel && draft[sel]) { if (e.target.id === 'cm') draft[sel].comment = e.target.value; if (e.target.id === 'memo') draft[sel].memo = e.target.value; } });
+</script>
+</body>
+</html>

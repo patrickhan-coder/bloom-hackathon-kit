@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VC 한줄평</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root{--bg:#F6F2EE;--card:#fff;--ink:#1C1410;--muted:#6B5D53;--faint:#9C8E84;--line:#E4DAD1;--fire:#E8622A;--gold:#B7791F;--soft:#FFF1E6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px}
+  .k{font-size:13px;font-weight:800;letter-spacing:.18em;color:var(--fire);text-transform:uppercase}
+  h1{font-size:34px;line-height:1.2;margin:8px 0 10px;letter-spacing:-.02em}
+  .lead{color:var(--muted);font-size:15px;line-height:1.7;margin:0 0 22px}
+  .stats{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 22px;font-size:14px;color:var(--muted)}
+  .stats b{display:block;font-size:24px;color:var(--ink);font-weight:900}
+  .bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .bar input{flex:1;min-width:200px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);font:inherit;font-size:15px;background:#fff}
+  .bar button{padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted)}
+  .bar button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  h2{font-size:18px;margin:30px 0 12px;display:flex;align-items:baseline;gap:8px} h2 span{font-size:14px;color:var(--faint);font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 12px}
+  .card.m{border:2px solid var(--fire)}
+  .hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .no{font-size:13px;font-weight:800;color:var(--faint)}
+  .tn{font-size:19px;font-weight:900}
+  .tag{font-size:12px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--bg);color:var(--muted)}
+  .tag.vc{background:var(--soft);color:var(--fire)}
+  .tag.fin{background:#F3EBD9;color:var(--gold)}
+  .sv{margin:6px 0 0;font-size:14px;color:var(--muted);line-height:1.6}
+  .sv b{color:var(--ink)}
+  ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:8px}
+  li{position:relative;padding:10px 12px 10px 30px;background:var(--bg);border-radius:10px;font-size:15px;line-height:1.6}
+  li::before{content:'“';position:absolute;left:11px;top:4px;font-size:24px;color:var(--fire);font-weight:900}
+  .lks{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+  .lks a{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:800;text-decoration:none}
+  .lks a:hover{border-color:var(--fire);color:var(--fire)}
+  .hero{width:100%;aspect-ratio:16/8;object-fit:cover;border-radius:14px;display:block;margin:0 0 26px}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 0} .gal img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:10px;display:block}
+  @media (max-width:600px){ .gal{grid-template-columns:repeat(2,1fr)} .hero{aspect-ratio:3/2} }
+  .seg{display:inline-flex;gap:2px;padding:3px;border-radius:999px;border:1px solid var(--line);background:#fff}
+  .bar .seg button{border:0;padding:7px 12px}
+  .mi{margin:4px 0 0;font-size:13px;color:var(--faint);line-height:1.5}
+  h2 .by{color:var(--fire)}
+  .empty{color:var(--faint);font-size:14px;padding:20px 0}
+  .foot{margin-top:36px;color:var(--faint);font-size:13px;line-height:1.7}
+  @media (max-width:600px){ h1{font-size:26px} .wrap{padding:28px 16px 60px} .card{padding:16px} .tn{font-size:17px} }
+</style></head>
+<body><div class="wrap">
+  <div id="hero"></div>
+  <div class="k" id="kick"></div>
+  <h1>VC 한줄평</h1>
+  <p class="lead" id="lead"></p>
+  <div class="stats" id="stats"></div>
+  <div class="bar"><input id="q" placeholder="팀 이름이나 서비스로 찾기" autocomplete="off"><span class="seg"><button data-v="result" class="on">결과별</button><button data-v="mission">미션별</button></span><button data-f="all" class="on">전체</button><button data-f="pass">본선</button><button data-f="fail">1차 심사</button><button data-f="closed">심사 마감</button></div>
+  <div id="list"></div>
+  <div id="gal"></div>
+  <p class="foot" id="foot"></p>
+</div>
+<script type="module">
+// The archive renders /feedback.json, built after the event by scripts/build-feedback.mjs:
+// VC comments without VC names or memos, shuffled per team. Event text falls back to assets/event.js.
+import { EVENT, HOSTS } from '/assets/event.js';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let J = null;
+try { const r = await fetch('/feedback.json', { cache: 'no-cache' }); if (r.ok) J = await r.json(); } catch {}
+const ev = { name: EVENT.name, dateLabel: EVENT.dateLabel, venue: EVENT.venue, partners: HOSTS.map(h => h.name), channel: EVENT.discord?.participants || '', ...(J?.event || {}) };
+const D = J?.teams || [], T = J?.missions || [];
+const TT = Object.fromEntries(T.map(t => [t.id, t]));
+const cap = J?.capacity ?? EVENT.capacity, P = J ? J.prize : EVENT.prize, vcs = J?.vcCount ?? 0;
+const passN = D.filter(x => x.status === 'pass').length;
+
+document.title = `VC 한줄평 · ${ev.name}`;
+$('#kick').textContent = `${ev.name} · ${ev.dateLabel}`;
+if (J?.hero) $('#hero').innerHTML = `<img class="hero" src="${esc(J.hero)}" alt="${esc(ev.name)} 현장" onerror="this.remove()">`;
+$('#lead').textContent = D.length ? `하루 동안 ${D.length}팀이 만든 서비스와, 1차 심사에서 VC ${vcs}곳이 남긴 한줄평을 모두 모았어요. 어떤 VC가 쓴 글인지는 공개하지 않고, 순서도 섞어 두었어요.` : '행사가 끝나면 VC 한줄평이 여기에 올라와요.';
+if (J?.photos?.length) $('#gal').innerHTML = `<h2>현장 <span>${esc(ev.dateLabel)} · ${esc(ev.venue)}</span></h2><div class="gal">${J.photos.map(p => `<img loading="lazy" src="${esc(p)}" alt="" onerror="this.remove()">`).join('')}</div>`;
+$('#foot').innerHTML = [
+  `본선 ${passN || cap}팀은 샤크탱크에서 VC와 후속 미팅을 정했어요${P ? `. ${passN || cap}팀 모두 ${esc(P.label)} ${esc(P.amount)}을 받아요` : ''}. 심사 마감 팀은 본선 ${cap}자리가 먼저 차서 VC 일부만 심사를 마친 팀이에요.`,
+  `데모·발표자료·GitHub 공개를 원하지 않는 팀은 ${ev.channel ? `디스코드 ${esc(ev.channel)}에` : '운영진에게'} 알려 주세요. 바로 내릴게요.`,
+  [ev.name, ...(ev.partners || [])].map(esc).join(' · '),
+].join('<br>');
+
+let F = 'all', V = location.hash === '#mission' ? 'mission' : 'result';
+const card = x => `<div class="card ${x.vc ? 'm' : ''}"><div class="hd"><span class="no">#${String(x.no).padStart(2, '0')}</span><span class="tn">${esc(x.team)}</span>
+  ${x.vc ? `<span class="tag vc">후속 미팅 · ${esc(x.vc)}</span>` : x.status === 'pass' ? '<span class="tag fin">본선 진출</span>' : ''}
+  ${x.status === 'fail' && x.p != null ? `<span class="tag">PASS ${x.p} · FAIL ${x.f}</span>` : ''}${x.status === 'closed' ? '<span class="tag">심사 마감</span>' : ''}</div>
+  <p class="sv"><b>${esc(x.svc)}</b>${x.one ? ' · ' + esc(x.one) : ''}</p>
+  ${V === 'result' && TT[x.m] ? `<p class="mi">미션 · ${esc(TT[x.m].title)}</p>` : ''}
+  ${Object.keys(x.links || {}).length ? `<div class="lks">${x.links.demo ? `<a href="${esc(x.links.demo)}" target="_blank" rel="noopener">데모</a>` : ''}${x.links.pdf ? `<a href="${esc(x.links.pdf)}" target="_blank" rel="noopener">발표자료</a>` : ''}${x.links.repo ? `<a href="${esc(x.links.repo)}" target="_blank" rel="noopener">GitHub</a>` : ''}</div>` : ''}
+  ${x.cs.length ? `<ul>${x.cs.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}</div>`;
+function render() {
+  const q = $('#q').value.trim().toLowerCase();
+  const hit = x => (F === 'all' || x.status === F) && (!q || (x.team + ' ' + x.svc + ' ' + x.one).toLowerCase().includes(q));
+  const sec = (title, arr) => arr.length ? `<h2>${title} <span>${arr.length}팀</span></h2>${arr.map(card).join('')}` : '';
+  let html;
+  if (V === 'mission') {
+    // one section per mission, in reveal order; inside: follow-up meeting, finalists, then the rest by submission order
+    const rank = { pass: 0, fail: 1, closed: 2 };
+    const by = (a, b) => (!!b.vc - !!a.vc) || ((rank[a.status] ?? 3) - (rank[b.status] ?? 3)) || a.no - b.no;
+    const msec = (t, arr) => arr.length ? `<h2>${esc(t.title)} <span>${t.vc ? `<span class="by">${esc(t.vc)}</span> 출제 · ` : ''}${arr.length}팀</span></h2>${arr.sort(by).map(card).join('')}` : '';
+    html = T.map(t => msec(t, D.filter(x => x.m === t.id && hit(x)))).join('') + msec({ title: '미션 미선언' }, D.filter(x => !TT[x.m] && hit(x)));
+  } else {
+    const pass = D.filter(x => x.status === 'pass' && hit(x)).sort((a, b) => (!!b.vc - !!a.vc) || a.no - b.no);
+    html = sec('본선', pass) + sec('1차 심사', D.filter(x => x.status === 'fail' && hit(x))) + sec('심사 마감', D.filter(x => x.status === 'closed' && hit(x)));
+  }
+  $('#list').innerHTML = html || `<div class="empty">${D.length ? '찾는 팀이 없어요.' : '아직 공개된 한줄평이 없어요.'}</div>`;
+}
+const n = D.reduce((a, x) => a + x.cs.length, 0);
+$('#stats').innerHTML = D.length ? `<div><b>${D.length}</b>제출 팀</div><div><b>${n}</b>한줄평</div><div><b>${passN}</b>본선</div><div><b>${D.filter(x => x.vc).length}</b>후속 미팅</div>` : '';
+$('#q').addEventListener('input', render);
+document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { F = b.dataset.f; document.querySelectorAll('[data-f]').forEach(y => y.classList.toggle('on', y === b)); render(); }));
+const vbtn = document.querySelectorAll('[data-v]');
+vbtn.forEach(y => y.classList.toggle('on', y.dataset.v === V));
+vbtn.forEach(b => b.addEventListener('click', () => {
+  V = b.dataset.v; vbtn.forEach(y => y.classList.toggle('on', y === b));
+  history.replaceState(null, '', V === 'mission' ? '#mission' : location.pathname + location.search);
+  render();
+}));
+render();
+</script></body></html>

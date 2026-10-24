@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><link rel="icon" href="/assets/logos/mark.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주제 선언과 제출</title>
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+  body{min-height:100vh;background:radial-gradient(ellipse 120% 50% at 50% -10%,rgba(255,106,43,.22),transparent 60%),var(--bg)}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 16px 80px}
+  .hero{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+  .hero img{height:56px}
+  .hero h1{font-size:24px;font-weight:900;line-height:1.2}
+  .hero p{color:var(--muted);font-size:14px;margin-top:2px}
+  .box{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+  .box h2{font-size:17px;margin-bottom:4px}
+  .box .desc{color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.6}
+  .field input,.field textarea,.field select{background:var(--bg);color:var(--ink);border-color:var(--line)}
+  .btn{background:var(--bg3);color:var(--ink);border-color:var(--line);padding:12px 16px}
+  .btn.primary{width:100%}
+  .team{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .team b{font-size:18px}
+  .topic{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+  .topic input{margin-top:4px}
+  .topic.wild{border-color:rgba(255,143,168,.5)}
+  .topic small{display:block;color:var(--faint);font-size:12px}
+  .done{border-color:rgba(95,208,138,.5)}
+  .receipt{text-align:center;padding:26px 18px}
+  .receipt .no{font-size:64px;font-weight:900;color:var(--fire);line-height:1}
+  .warn{background:rgba(224,64,47,.12);border:1px solid rgba(224,64,47,.4);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.6;margin-bottom:14px}
+  .ok{color:var(--ok);font-weight:700}
+  .hidden{display:none}
+  label.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.5;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero"><img id="mark" alt=""><div><h1 id="ename"></h1><p id="edate"></p></div></div>
+
+  <div class="box" id="who">
+    <h2>우리 팀 확인</h2>
+    <div class="desc">행사 신청할 때 쓴 이메일을 넣어 주세요. 팀원 누구의 이메일이든 괜찮아요.</div>
+    <div class="field"><input id="email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+    <button class="btn primary" id="find">팀 찾기</button>
+    <details id="byname" style="margin-top:14px"><summary class="desc" style="cursor:pointer;margin:0">이메일이 안 맞나요? 팀 이름으로 찾기</summary>
+      <div class="field" style="margin-top:10px"><select id="tsel"><option value="">우리 팀 고르기</option></select></div>
+      <div class="field"><input id="member" placeholder="내 이름 (신청서에 적은 그대로)"></div>
+      <button class="btn" id="find2">이 팀으로 들어가기</button></details>
+    <div class="err" id="whoErr" style="margin-top:10px"></div>
+  </div>
+
+  <div id="main" class="hidden">
+    <div class="box"><div class="team"><div><div class="desc" style="margin:0">우리 팀</div><b id="tname"></b><div class="desc" id="tmem" style="margin:2px 0 0"></div></div><button class="btn" id="other" style="padding:8px 12px">다른 이메일</button></div></div>
+
+    <div class="box" id="topicBox">
+      <h2>1. 주제 선언 <span id="topicDone" class="ok"></span></h2>
+      <div class="desc" id="topicDesc"></div>
+      <div id="topicForm">
+        <div id="topics"></div>
+        <div class="field"><label>한 줄 아이디어</label><input id="idea" maxlength="500" placeholder="무엇을 누구를 위해 만드나요"></div>
+        <div class="field"><label>타깃 해외 시장 (국가와 고객)</label><input id="market" maxlength="300" placeholder="예: 미국의 1인 지식노동자 프리랜서"></div>
+        <div class="field"><label>공개 GitHub 레포</label><input id="repo" placeholder="https://github.com/아이디/레포"></div>
+        <div class="desc">레포는 반드시 공개(Public)로 만들어 주세요. 커밋 기록이 현장 화면에 공개돼요. <b style="color:var(--ink)">API 키는 절대 커밋하지 마세요.</b> .env 파일에 넣고 .gitignore에 추가하세요.</div>
+        <button class="btn primary" id="declare">주제 선언하기</button>
+        <div class="err" id="topicErr" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <div class="box" id="subBox">
+      <h2>2. 제출 (팀당 한 번)</h2>
+      <div class="desc" id="subDesc"></div>
+      <div id="subForm" class="hidden">
+        <div class="warn" id="subWarn"></div>
+        <div class="field"><label>서비스 이름</label><input id="svc" maxlength="60"></div>
+        <div class="field"><label>한 줄 소개 (원라이너)</label><input id="one" maxlength="160"></div>
+        <div class="field"><label>타깃 해외 시장</label><input id="mkt" maxlength="300"></div>
+        <div class="field"><label>데모 링크</label><input id="demo" placeholder="https://"></div>
+        <div class="field"><label>데모 사용법 (VC가 먼저 볼 것)</label><textarea id="dguide" maxlength="1500" rows="3" placeholder="예) 1. 첫 화면에서 '견적 만들기'를 눌러 보세요  2. 테스트 계정 demo@example.com / 1234  3. 결제 링크까지 1분이면 돼요"></textarea></div>
+        <div class="field"><label id="pdfLabel">발표자료 PDF</label><input id="pdf" type="file" accept="application/pdf"><span class="desc" id="pdfState" style="margin:0"></span>
+          <details><summary class="desc" style="margin:4px 0 0;cursor:pointer">업로드가 안 되면 PDF 링크로 넣기</summary><input id="pdfUrl" placeholder="누구나 열 수 있는 PDF 링크" style="margin-top:6px;width:100%"></details></div>
+        <div class="field"><label>오늘 새로 만든 부분 (한 줄)</label><input id="built" maxlength="400"></div>
+        <label class="chk hidden"><input type="checkbox" id="used"> 기존에 만들어 둔 코드나 제품을 일부 가져왔어요</label>
+        <div class="field hidden" id="usedBox"><label>무엇을 가져왔나요</label><input id="usedNote" maxlength="400"></div>
+        <label class="chk"><input type="checkbox" id="sure"> 다시 낼 수 없다는 걸 알고 제출합니다</label>
+        <button class="btn primary" id="submit" disabled>제출하기</button>
+        <div class="err" id="subErr" style="margin-top:10px"></div>
+      </div>
+      <div id="receipt" class="receipt hidden"></div>
+    </div>
+    <div class="desc" style="text-align:center"><a href="/status">실시간 현황 보기</a></div>
+  </div>
+</div>
+<script type="module">
+import { api, esc, hm, hms, VCS, EVENT, store, STATUS_KO, $ } from '/assets/common.js';
+document.title = `${EVENT.name} · 주제 선언과 제출`;
+$('#ename').textContent = EVENT.name;
+$('#edate').textContent = `주제 선언과 제출 · ${EVENT.dateLabel}`;
+if (EVENT.mark) { $('#mark').src = EVENT.mark; $('#mark').onerror = () => $('#mark').remove(); } else $('#mark').remove();
+$('#pdfLabel').textContent = EVENT.pitchPages ? `발표자료 PDF (${EVENT.pitchPages}장 이내)` : '발표자료 PDF';
+const CH = EVENT.discord?.participants || '';
+let cred = (() => { try { return JSON.parse(store.get('hk-cred') || 'null'); } catch { return null; } })() || (store.get('hk-email') ? { email: store.get('hk-email') } : null), T = null, cfg = null;
+if (cred?.email) $('#email').value = cred.email;
+api('/api/state?scope=public').then(st => { $('#tsel').innerHTML += (st.teams || []).map(t => t.name).sort((a, b) => a.localeCompare(b, 'ko')).map(n => `<option>${esc(n)}</option>`).join(''); }).catch(() => {});
+
+async function load() {
+  const st = await api('/api/state?scope=public');
+  cfg = st.config;
+  T = await api('/api/lookup', { method: 'POST', body: cred });
+  T.state = st;
+  render();
+}
+
+function render() {
+  $('#who').classList.add('hidden'); $('#main').classList.remove('hidden');
+  $('#tname').textContent = T.team.name; $('#tmem').textContent = T.team.members.join(' · ');
+  const win = T.windows;
+  // topics
+  const tp = T.topic;
+  $('#topicDone').textContent = tp ? '· 선언 완료' : '';
+  $('#topicBox').classList.toggle('done', !!tp);
+  if (!cfg.topicsRevealed && !cfg.test) {
+    $('#topicDesc').innerHTML = `주제는 ${EVENT.times?.reveal ? hm(EVENT.times.reveal) + '에' : '무대에서'} 공개돼요. 그 전에 공개 GitHub 레포를 하나 만들어 두세요.`;
+    $('#topicForm').classList.add('hidden');
+  } else {
+    $('#topicForm').classList.toggle('hidden', !!T.submission || (!win.topic && !!tp));
+    $('#topicDesc').innerHTML = tp ? `선언한 주제: <b style="color:var(--ink)">${esc(cfg.topics.find(t => t.id === tp.topic)?.title || '')}</b><br>${esc(tp.idea)} · ${esc(tp.market)}<br><a href="${esc(tp.repo)}" target="_blank">${esc(tp.repo)}</a>${win.topic && !T.submission ? '<br>마감 전까지 수정할 수 있어요.' : ''}`
+      : (win.topic ? `주제 하나를 고르고 레포를 등록해 주세요. 선언 마감 ${hms(new Date(cfg.topicDeadline).getTime()).slice(0, 5)}` : '주제 선언 시간이 아니에요. 운영진에게 알려주세요.');
+    if (!$('#topics').dataset.done) {
+      $('#topics').innerHTML = cfg.topics.map(t => { const vc = VCS.find(v => v.key === t.vc); return `<label class="topic ${t.id === 'wild' ? 'wild' : ''}"><input type="radio" name="topic" value="${t.id}" ${tp?.topic === t.id ? 'checked' : ''}><div>${esc(t.title)}<small>${t.id === 'wild' ? 'VC가 낸 주제가 아니라 덜 유리할 수 있어요. 그래도 우리 아이디어로 승부하고 싶다면.' : '출제 · ' + esc(vc?.name || '')}</small></div></label>`; }).join('');
+      if (tp) { $('#idea').value = tp.idea; $('#market').value = tp.market; $('#repo').value = tp.repo; }
+      $('#topics').dataset.done = '1';
+    }
+    $('#declare').textContent = tp ? '주제 수정하기' : '주제 선언하기';
+  }
+  // submission
+  $('#subWarn').textContent = `제출은 팀당 한 번뿐이고 다시 낼 수 없어요. 제출한 순서대로 VC가 심사하고, 본선 ${cfg.capacity}팀이 차는 순간 마감돼요.`;
+  const s = T.submission;
+  if (s) {
+    $('#subForm').classList.add('hidden'); $('#receipt').classList.remove('hidden');
+    $('#subDesc').textContent = '';
+    $('#receipt').innerHTML = `<div class="desc">접수 번호</div><div class="no num">#${String(s.no).padStart(2, '0')}</div><div class="desc" style="margin-top:8px">${hms(s.at)} 접수 · ${esc(s.serviceName)}</div><h2 style="margin-top:10px">${STATUS_KO[s.status] || ''}</h2><div class="desc">${CH ? `결과는 현장 화면과 디스코드 ${esc(CH)} 채널에 발표돼요. 궁금한 건 그 채널에 남겨 주세요.` : '결과는 현장 화면에 발표돼요.'}</div>`;
+  } else if (T.full) { $('#subDesc').textContent = `본선 ${cfg.capacity}팀이 모두 정해져 제출이 마감됐어요.`; $('#subForm').classList.add('hidden'); }
+  else if (!win.submit) { $('#subDesc').textContent = `지금은 제출 시간이 아니에요. 제출은 ${hm(cfg.submitOpenAt)}부터 ${hm(cfg.submitDeadline)}까지예요.`; $('#subForm').classList.add('hidden'); }
+  else { $('#subDesc').textContent = '준비됐을 때 한 번만 내 주세요.'; $('#subForm').classList.remove('hidden'); if (!$('#mkt').value && tp) $('#mkt').value = tp.market; }
+}
+
+$('#find').onclick = async () => {
+  cred = { email: $('#email').value.trim() }; $('#whoErr').textContent = '';
+  try { await load(); store.set('hk-cred', JSON.stringify(cred)); } catch (e) { $('#whoErr').textContent = e.message; }
+};
+$('#find2').onclick = async () => {
+  cred = { teamName: $('#tsel').value, member: $('#member').value.trim() }; $('#whoErr').textContent = '';
+  try { await load(); store.set('hk-cred', JSON.stringify(cred)); } catch (e) { $('#whoErr').textContent = e.message; }
+};
+$('#other').onclick = () => { $('#main').classList.add('hidden'); $('#who').classList.remove('hidden'); $('#topics').dataset.done = ''; };
+$('#declare').onclick = async () => {
+  $('#topicErr').textContent = '';
+  try {
+    await api('/api/topic', { method: 'POST', body: { ...cred, topic: document.querySelector('input[name=topic]:checked')?.value, idea: $('#idea').value, market: $('#market').value, repo: $('#repo').value } });
+    await load();
+  } catch (e) { $('#topicErr').textContent = e.message; }
+};
+$('#used').onchange = () => $('#usedBox').classList.toggle('hidden', !$('#used').checked);
+$('#sure').onchange = () => $('#submit').disabled = !$('#sure').checked;
+
+let uploaded = '';
+$('#pdf').onchange = async () => {
+  const f = $('#pdf').files[0]; if (!f) return;
+  $('#pdfState').textContent = '업로드 중...'; uploaded = '';
+  try {
+    const { upload } = await import('https://esm.sh/@vercel/blob@2.8.1/client');
+    const b = await upload(`pitch/${f.name.replace(/[^\w.-]+/g, '_')}`, f, { access: 'public', handleUploadUrl: '/api/upload', clientPayload: JSON.stringify(cred) });
+    uploaded = b.url; $('#pdfState').innerHTML = `<span class="ok">업로드 완료</span>`;
+  } catch (e) { $('#pdfState').textContent = `업로드 실패: ${e.message}. 아래에 PDF 링크로 넣어 주세요.`; }
+};
+$('#submit').onclick = async () => {
+  $('#subErr').textContent = ''; $('#submit').disabled = true;
+  try {
+    await api('/api/submit', { method: 'POST', body: { ...cred, serviceName: $('#svc').value, oneLiner: $('#one').value, market: $('#mkt').value, demoUrl: $('#demo').value.trim(), pdfUrl: uploaded || $('#pdfUrl').value.trim(), builtToday: $('#built').value, demoGuide: $('#dguide').value, usedExisting: $('#used').checked, existingNote: $('#usedNote').value } });
+    await load();
+  } catch (e) { $('#subErr').textContent = e.message; $('#submit').disabled = false; }
+};
+if (cred) load().catch(e => { $('#whoErr').textContent = e.message; });
+setInterval(() => { if (T && T.submission) load().catch(() => {}); }, 15000);
+</script>
+</body>
+</html>
