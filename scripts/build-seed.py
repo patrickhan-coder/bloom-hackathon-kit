@@ -3,7 +3,7 @@
 # Columns: 팀명, 이름 (one per member), 이메일... (any column starting with 이메일), 참석 승인 여부 (TRUE = approved).
 # Only approved teams. Emails are stored as salted SHA-256 only; EMAIL_SALT comes from the environment or .env.local
 # and must match the server's (the API falls back to 'dev-salt' when it is not set, so this does too).
-import csv, io, json, os, sys, hashlib, re, base64
+import csv, io, json, hmac, os, sys, hashlib, re, base64
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 src = sys.argv[1]
 out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, 'data', 'teams.seed.json')
@@ -17,7 +17,10 @@ except json.JSONDecodeError:
 env = {}
 if os.path.exists(os.path.join(root, '.env.local')):
     env = dict(l.strip().split('=', 1) for l in open(os.path.join(root, '.env.local')) if '=' in l and not l.startswith('#'))
-salt = os.environ.get('EMAIL_SALT') or env.get('EMAIL_SALT', '').strip('"') or 'dev-salt'
+admin = os.environ.get('ADMIN_KEY') or env.get('ADMIN_KEY', '').strip('"')
+# same fallback as api/_lib.js: without EMAIL_SALT the server derives the salt from ADMIN_KEY
+derived = base64.urlsafe_b64encode(hmac.new(admin.encode(), b'email-salt', hashlib.sha256).digest()).decode().rstrip('=')[:16] if admin else ''
+salt = os.environ.get('EMAIL_SALT') or env.get('EMAIL_SALT', '').strip('"') or derived or 'dev-salt'
 rows = list(csv.reader(io.StringIO(raw))); hdr = rows[0]
 idx = lambda h: [i for i, x in enumerate(hdr) if x == h]
 ti = idx('팀명')[0]; ni = idx('이름'); ei = [i for i, x in enumerate(hdr) if x.startswith('이메일')]; ai = idx('참석 승인 여부')[0]

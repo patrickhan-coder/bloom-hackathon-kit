@@ -80,6 +80,7 @@
         <button class="btn" id="cforce">커밋 새로고침</button>
         <button class="btn fail" id="reset">테스트 데이터 초기화</button>
       </div>
+      <h3 style="margin-top:12px">VC 심사 링크 <span class="mini">VC마다 다른 링크예요. 복사해서 보내 주세요</span></h3><div id="jlinks"></div>
       <h3 style="margin-top:12px">로그</h3><div class="log" id="log"></div>
     </div>
   </div>
@@ -329,6 +330,17 @@ function render() {
   renderTop(); renderStats(); if (!inSubs) renderSubs(); keep('#ledctl', renderLedCtl); applyShow(); renderDemo(); renderMatch();
   if (!editing) { keep('#cfg', renderCfg); keep('#teams', renderTeams); }
   $('#log').innerHTML = S.events.map(e => `<div>${hms(e.at)} · ${esc(e.text)}</div>`).join('');
+  renderJudgeLinks();
+}
+let jlinksSeen = '';
+function renderJudgeLinks() {
+  const keys = S.judgeKeys || {}, sig = JSON.stringify(keys);
+  if (sig === jlinksSeen) return; // the links rarely change; don't redraw them under the operator's cursor
+  jlinksSeen = sig;
+  const url = k => `${location.origin}/judge?k=${encodeURIComponent(k)}`;
+  $('#jlinks').innerHTML = VCS.filter(v => keys[v.key]).map(v => `<div class="row-actions" style="align-items:center">
+    <b style="min-width:120px">${esc(v.name)}</b><input class="sm" readonly value="${esc(url(keys[v.key]))}" style="flex:1">
+    <button class="btn" data-copy="${esc(url(keys[v.key]))}">복사</button></div>`).join('') || '<div class="mini">심사 키가 없어요. ADMIN_KEY나 VC_KEYS를 넣어 주세요.</div>';
 }
 // the operator hears a ding when a team has its three votes and is ready to be announced
 let readySeen = null, AC2 = null;
@@ -364,6 +376,7 @@ document.addEventListener('change', e => {
 
 document.addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.copy) { try { await navigator.clipboard.writeText(b.dataset.copy); toast('링크를 복사했어요'); } catch { toast('복사가 막혔어요. 칸을 눌러 직접 복사해 주세요'); } return; }
   const id = b.dataset.id, led = S.led;
   if (b.dataset.scene) {
     if (b.dataset.scene === 'topics') { if (!revealTopics()) return; return setLed({ scene: 'slide', slide: SLIDES.findIndex(x => x.topics), topicsShown: 0 }); }

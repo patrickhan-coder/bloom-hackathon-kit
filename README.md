@@ -90,10 +90,16 @@ npm run seed:demo
 
 ## 배포
 
-- Vercel에 이 폴더를 그대로 올리면 돼요. `api/`는 서버리스 함수로, `public/`은 정적 파일로 나가요.
-- 저장소는 Upstash Redis예요. Vercel의 Upstash 연동을 켜면 `KV_REST_API_URL`, `KV_REST_API_TOKEN`이 자동으로 들어와요. 이 값이 없으면 메모리 저장소로 돌아가니 운영에는 꼭 Redis를 붙여요.
-- 발표자료 PDF 업로드는 Vercel Blob을 써요 (`BLOB_READ_WRITE_TOKEN`).
-- 관리자 키(`ADMIN_KEY`)와 VC별 심사 키(`VC_KEYS`), 디스코드 웹훅은 환경 변수로 넣어요. 전체 목록은 [.env.example](.env.example)에 있어요.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpatrickhan-coder%2Fbloom-hackathon-kit&project-name=bloom-hackathon&repository-name=bloom-hackathon&env=ADMIN_KEY&envDescription=%EC%9A%B4%EC%98%81%20%EC%BD%98%EC%86%94%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EC%98%88%EC%9A%94.%20VC%20%EC%8B%AC%EC%82%AC%20%EB%A7%81%ED%81%AC%EB%8F%84%20%EC%9D%B4%20%EA%B0%92%EC%9C%BC%EB%A1%9C%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A0%B8%EC%9A%94.&envLink=https%3A%2F%2Fgithub.com%2Fpatrickhan-coder%2Fbloom-hackathon-kit%2Fblob%2Fmain%2F.env.example&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22upstash-kv%22%2C%22integrationSlug%22%3A%22upstash%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
+
+1. 버튼을 누르면 내 GitHub에 레포가 복사되고, Vercel 프로젝트와 Redis(Upstash), 발표자료 저장소(Vercel Blob)가 한 번에 만들어져요. 물어보는 건 운영 콘솔 비밀번호(`ADMIN_KEY`) 하나예요. Blob 저장소는 **public**으로 골라 주세요. VC가 발표자료 PDF를 열어야 해서요.
+2. 복사된 레포에서 `public/assets/event.js`를 우리 행사에 맞게 고쳐요. GitHub 웹에서 고치고 커밋하면 Vercel이 알아서 다시 배포해요.
+3. `/console?key=비밀번호`로 운영 콘솔을 열어요. 도구 칸에 **VC 심사 링크**가 VC마다 하나씩 있어요. 복사해서 VC에게 보내면 끝이에요.
+
+알아 두면 좋은 것:
+- VC 심사 링크와 팀 이메일 확인은 `ADMIN_KEY`로 만들어져요. 행사 중에 비밀번호를 바꾸면 링크도 바뀌니, 바꿔야 한다면 `VC_KEYS`와 `EMAIL_SALT`를 따로 넣어 고정하세요.
+- 디스코드 자동 공지(웹훅), GitHub 토큰 같은 선택 항목은 [.env.example](.env.example)에 설명이 있어요.
+- Redis 없이 Vercel에 올리면 메모리 저장소로 돌아서 데이터가 남지 않아요. 버튼으로 만들면 Redis가 자동으로 붙어요.
 - 화면들이 몇 초마다 상태를 읽어서 행사 당일 Redis 사용량이 크게 늘어요. 그날 하루 만에 무료 플랜의 월 대역폭 한도를 넘겨, 행사가 끝난 밤 데이터베이스가 정지됐어요. 유료 플랜이나 넉넉한 한도로 준비하세요.
 
 ## 디스코드 AI 운영

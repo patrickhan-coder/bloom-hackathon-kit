@@ -86,8 +86,12 @@ export const S = v => JSON.stringify(v);
 export const now = () => Date.now();
 export const ms = iso => new Date(iso).getTime();
 
+// One password runs an event: whatever is not set explicitly (EMAIL_SALT, VC_KEYS) is derived from ADMIN_KEY.
+// Changing ADMIN_KEY mid-event therefore changes the judge links and the salt; set those two explicitly to pin them.
+const fromAdminKey = label => crypto.createHmac('sha256', process.env.ADMIN_KEY).update(label).digest('base64url').slice(0, 16);
+
 export function hashEmail(email) {
-  const salt = process.env.EMAIL_SALT || 'dev-salt';
+  const salt = process.env.EMAIL_SALT || (process.env.ADMIN_KEY ? fromAdminKey('email-salt') : 'dev-salt');
   return crypto.createHash('sha256').update(salt + String(email || '').trim().toLowerCase()).digest('hex');
 }
 
@@ -113,10 +117,17 @@ export function isAdmin(req) {
   return devKeys() && k === 'dev-admin';
 }
 
+// each judge's link key: VC_KEYS when set, otherwise derived from ADMIN_KEY (the console lists the links), else local dev keys
+export function judgeKeys() {
+  const set = J(process.env.VC_KEYS, null);
+  if (set) return set;
+  if (process.env.ADMIN_KEY) return Object.fromEntries(VCS.map(v => [v.key, fromAdminKey('judge:' + v.key)]));
+  return devKeys() ? Object.fromEntries(VCS.map(v => [v.key, 'dev-' + v.key])) : {};
+}
+
 export function vcFromKey(k) {
   if (!k) return null;
-  const map = J(process.env.VC_KEYS, null) || (devKeys() ? Object.fromEntries(VCS.map(v => [v.key, 'dev-' + v.key])) : {});
-  const hit = Object.entries(map).find(([, key]) => key === k);
+  const hit = Object.entries(judgeKeys()).find(([, key]) => key === k);
   return hit ? hit[0] : null;
 }
 

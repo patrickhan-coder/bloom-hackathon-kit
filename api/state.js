@@ -1,4 +1,4 @@
-import { store, getRaw, derive, send, bad, isAdmin, vcFromKey, VCS, commitFlags, windowState, publicTeam, now, storageKind } from './_lib.js';
+import { store, getRaw, derive, send, bad, isAdmin, vcFromKey, judgeKeys, VCS, commitFlags, windowState, publicTeam, now, storageKind } from './_lib.js';
 
 // GET /api/state?scope=public|judge|admin  (judge: &k=VC_KEY, admin: header x-key)
 export default async function handler(req, res) {
@@ -84,6 +84,7 @@ export default async function handler(req, res) {
     const subs = d.subs.map(x => ({ ...x, flags: commitFlags(commits.perTeam?.[x.teamId], cfg) }));
     return send(res, 200, {
       ...base, config: cfg, subs, matches: raw.matches || {}, storage: storageKind(),
+      judgeKeys: judgeKeys(), // the console turns these into each VC's judge link
       teamsFull: Object.values(raw.teams).map(t => ({ ...teamView(t.id), hashes: (t.emailHashes || []).length })),
       topics: raw.topics, commits, events: (raw.events || []).slice(0, 80),
     });
