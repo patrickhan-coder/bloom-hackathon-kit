@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       commits: c ? { count: c.count, countPlus: !!c.countPlus, lastAt: c.lastAt, firstAt: c.firstAt, firstAdditions: c.firstAdditions, history: !!c.history } : null,
     };
   };
-  // Judging is shown in submission order (changed on the day, 16:35): only the first 3 undecided submissions show their votes on
+  // Judging is shown in submission order: only the first 3 undecided submissions show their votes on
   // public screens; later ones look untouched until their turn, even if some VCs already voted on them.
   const TURN = 3;
   const front = new Set(d.subs.filter(x => !x.dec && (x.status === 'queued' || x.status === 'reviewing')).sort((a, b) => a.no - b.no).slice(0, TURN).map(x => x.teamId));
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     teamId: x.teamId, no: x.no, at: x.at, serviceName: x.serviceName, oneLiner: x.oneLiner, market: x.market,
     demoUrl: x.demoUrl, pdfUrl: x.pdfUrl, status: x.status, passNo: x.passNo,
     voters: x.votes.length,
-    // live tally (changed on the day, 15:30): PASS/FAIL counts are public while judging; comments stay hidden until the result
+    // live tally: PASS/FAIL counts are public while judging; comments stay hidden until the result
     pass: x.votes.filter(v => v.vote === 'pass').length, fail: x.votes.filter(v => v.vote === 'fail').length,
     // decided by the VCs but not announced yet: says *that* a result exists, never which one
     ready: !!x.auto?.result && !x.dec,

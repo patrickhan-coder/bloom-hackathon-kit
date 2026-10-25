@@ -141,7 +141,7 @@ function renderRule() {
   오늘 ${start} 이후에 만든 것만 심사하기로 했어요. 모든 팀은 공개 GitHub 레포를 쓰고, 커밋 기록이 모두에게 공개돼요. 첫 커밋이 ${start} 이전이거나 첫 커밋에 코드가 한꺼번에 많이 들어온 경우 표시해 드려요. 템플릿으로 시작해도 커질 수 있으니 판단 참고용으로만 봐 주세요.</details>`;
 }
 
-// submission-order window (changed on the day, 16:25): each VC votes on the earliest 3 teams still waiting for their judgment
+// submission-order window: each VC votes on the earliest 3 teams still waiting for their judgment
 const WINDOW = 3;
 const myQueue = () => S.subs.filter(x => !x.mine && !x.decided && (x.status === 'queued' || x.status === 'reviewing')).sort((a, b) => a.no - b.no);
 const canVote = x => x.mine || myQueue().slice(0, WINDOW).some(y => y.teamId === x.teamId);

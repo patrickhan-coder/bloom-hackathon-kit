@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+@font-face{font-family:'Pretendard Variable';src:url(/assets/fonts/PretendardVariable.woff2) format('woff2-variations'),url(/assets/fonts/PretendardVariable.woff2) format('woff2');font-weight:45 920;font-display:swap}
 :root{
   --bg:#120B08; --bg2:#1D120D; --bg3:#2A1A12; --ink:#FFF4E8; --muted:rgba(255,244,232,.62); --faint:rgba(255,244,232,.38);
   --line:rgba(255,244,232,.14); --fire:#FF6A2B; --gold:#FFB547; --red:#E0402F; --kraft:#E8C49A; --pink:#FF8FA8; --ok:#5FD08A;

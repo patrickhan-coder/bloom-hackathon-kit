@@ -145,7 +145,7 @@ npm run seed:demo
 - `npm run e2e`는 제출부터 심사까지 한 바퀴 도는 점검이에요.
 - 데모 시드는 전체 데이터를 지우고 새로 넣어요. 그래서 내 컴퓨터의 파일 저장소에서만 돌아가요.
 
-![데모 LED 심사 화면](docs/screenshots/demo-led-judging.png)
+![데모 LED 심사 화면](docs/screenshots/demo-led-judging.jpg)
 
 다른 화면은 [docs/screenshots](docs/screenshots)에 있어요.
 
@@ -184,7 +184,7 @@ npm run seed:demo
 
 ## 라이선스
 
-[MIT](LICENSE). 폰트(Pretendard, Anton, Black Han Sans)는 각 폰트의 SIL Open Font License를 따라요.
+[MIT](LICENSE). 폰트(Pretendard)는 SIL Open Font License를 따라요.
 
 만든 곳: [Bloom](https://bloomworld.ai/community/). 이 키트로 해커톤을 열었다면 알려 주세요.
 

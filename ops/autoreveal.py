@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Auto-reveal (added on the day): results go out on the LED and Discord as soon as the VCs decide, no operator click.
+"""Auto-reveal: results go out on the LED and Discord as soon as the VCs decide, no operator click.
 FAIL goes out as soon as it is decided (no seat involved). PASS goes out in SUBMISSION order so the final seats fill fairly:
 a PASS waits only while an earlier-numbered team is still undecided or an earlier PASS is still waiting.
 The lowest-numbered team without a result is the head of the queue. Its result goes out as soon as the VCs decide it

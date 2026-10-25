@@ -65,7 +65,7 @@ export default async function handler(req, res) {
       break;
     }
     case 'revive': {
-      // 패자부활 (added on the day): a team that was announced FAIL takes a remaining final seat.
+      // 패자부활 (repechage): a team that was announced FAIL takes a remaining final seat.
       // The VC tally stays as it was; only the outcome changes, and it is marked as revived.
       const sub = d.subs.find(x => x.teamId === b.teamId);
       if (!sub || sub.dec?.result !== 'fail') return bad(res, '탈락으로 발표된 팀만 패자부활할 수 있어요.');

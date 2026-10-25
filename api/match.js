@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const raw = await getRaw(s);
   const d = derive(raw);
   const led = raw.led || {}, teamMatch = led.teamMatch || {}, offer = led.offer || {};
-  // per-team offers (changed on the day, 18:33): after each Q&A every VC says yes or pass to the team on stage; a VC may end up
+  // per-team offers: after each Q&A every VC says yes or pass to the team on stage; a VC may end up
   // with several teams (18:45), a team with one VC
   if (!offer.open) return bad(res, '지금은 제안을 받는 시간이 아니에요. 팀 질의응답이 끝나면 열려요.', 409);
   if (teamMatch[offer.teamId]) return bad(res, '이 팀은 이미 매칭이 끝났어요.', 409);
