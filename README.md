@@ -2,7 +2,7 @@
 
 **하루 만에 만들고, 그 자리에서 VC가 심사하는 해커톤**을 누구나 똑같이 열 수 있게 공개하는 운영 키트예요.
 
-2026년 10월 24일, Bloom이 Anthropic과 함께 서울 AI 허브에서 연 원데이 해커톤 **Ambition for Korea**에서 실제로 쓴 코드예요. 참가자 제출, VC 실시간 심사, 현장 LED, 운영 콘솔, 샤크탱크 매칭, 디스코드 AI 운영까지 하루를 굴린 시스템을 그대로 담았어요.
+2026년 10월 24일, [Bloom](https://bloomworld.ai/community/)이 Anthropic과 함께 서울 AI 허브에서 연 원데이 해커톤 **Ambition for Korea**에서 실제로 쓴 코드예요. 참가자 제출, VC 실시간 심사, 현장 LED, 운영 콘솔, 샤크탱크 매칭, 디스코드 AI 운영까지 하루를 굴린 시스템을 그대로 담았어요.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpatrickhan-coder%2Fbloom-hackathon-kit&project-name=bloom-hackathon&repository-name=bloom-hackathon&env=ADMIN_KEY&envDescription=%EC%9A%B4%EC%98%81%20%EC%BD%98%EC%86%94%20%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8%EC%98%88%EC%9A%94.%20VC%20%EC%8B%AC%EC%82%AC%20%EB%A7%81%ED%81%AC%EB%8F%84%20%EC%9D%B4%20%EA%B0%92%EC%9C%BC%EB%A1%9C%20%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A0%B8%EC%9A%94.&envLink=https%3A%2F%2Fgithub.com%2Fpatrickhan-coder%2Fbloom-hackathon-kit%2Fblob%2Fmain%2F.env.example&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22upstash-kv%22%2C%22integrationSlug%22%3A%22upstash%22%7D%2C%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D)
 
@@ -186,7 +186,7 @@ npm run seed:demo
 
 [MIT](LICENSE). 폰트(Pretendard, Anton, Black Han Sans)는 각 폰트의 SIL Open Font License를 따라요.
 
-만든 곳: [Bloom](https://blog.bloomworld.ai/). 이 키트로 해커톤을 열었다면 알려 주세요.
+만든 곳: [Bloom](https://bloomworld.ai/community/). 이 키트로 해커톤을 열었다면 알려 주세요.
 
 ---
 
